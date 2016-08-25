@@ -13,7 +13,17 @@ var asLib = (function () {
     return props;
   };
   
-  var mergeObjects = function (deep, newonly, ownonly, objects) {
+  var mergeObjects = function (deep, newonly, objects) {
+    if (!deep && !newonly && typeof Object.assign === 'function') {
+      while (objects[0] == null) {
+        if (!Array.isArray(objects))
+          objects = Array.prototype.slice.call(objects, 1);
+        else
+          objects.shift();
+      }
+      return Object.assign.apply(Object, objects);
+    }
+    
     var obj = objects[0], t, o, p;
     for (var i = 1, ol = objects.length; i < ol; ++i) {
       o = objects[i];
@@ -25,15 +35,15 @@ var asLib = (function () {
       }
 
       for (p in o) {
-        if (o[p] !== undefined || (ownonly && !o.hasOwnProperty(p)))
+        if (!o.hasOwnProperty(p))
           continue;
-        if (newonly && ( o[p] !== undefined || (ownonly && obj.hasOwnProperty(p)) ))
+        if (newonly && obj.hasOwnProperty(p))
           continue;
         if (!deep || typeof o[p] !== 'object')
           obj[p] = o[p];
         else {
           t = typeof obj[p] === 'object' ? obj[p] : {};
-          obj[p] = mergeObjects(deep, newonly, ownonly, [t, o[p] ]);
+          obj[p] = mergeObjects(deep, newonly, [t, o[p] ]);
         }
       }
     }
@@ -110,7 +120,7 @@ var asLib = (function () {
         
         // Ok, we don't have expectations that are not met - merge the prototypes
         // Invoke the initialization for it and add this skill to agent's.
-      	obj = mergeObjects(false, true, false, [ obj, new a(args) ]);
+      	obj = mergeObjects(false, true, [ obj, new a(args) ]);
       	skillmap[fnName(a)] = true;
       }
       else {
@@ -189,13 +199,13 @@ var asLib = (function () {
 		else
 		  objects = Array.prototype.slice.call(arguments, 1);
     
-    return mergeObjects(d, false, true, objects);
+    return mergeObjects(d, false, objects);
 	};
 	
   /** Merges the new properties from given objects into the first one.
     * Complexity: o(<number of properties> * <number of objects>).
     */
-	$$.merge = function (deep /*, objects */) {
+	$$.enhance = function (deep /*, objects */) {
   	var d = deep,
   	    objects = arguments;
 		if (typeof d !== 'boolean')
@@ -203,7 +213,7 @@ var asLib = (function () {
 		else
 		  objects = Array.prototype.slice.call(arguments, 1);
     
-    return mergeObjects(d, true, true, objects);
+    return mergeObjects(d, true, objects);
 	};
 	
 	/** Filters the properties, leaving only those which get `true` from the selector
@@ -260,7 +270,7 @@ var asLib = (function () {
 	$$.mimic = function (agent) {
 		var obj = {};
 
-		mergeObjects(false, true, true, obj, $$.filter(agent, fnOnly));
+		mergeObjects(false, true, obj, $$.filter(agent, fnOnly));
     return obj;
 	};
 	
@@ -348,7 +358,7 @@ var asLib = (function () {
 			
 			// Get this done, only if we're interested to use it afterwards...
 			if (full)
-			  mergeObjects(false, true, true, [ protos, extractProps(true, $$.filter(e, fnOnly)) ]);
+			  mergeObjects(false, true, [ protos, extractProps(true, $$.filter(e, fnOnly)) ]);
 			  
 			res.push(e);
 		}
