@@ -22,24 +22,24 @@
     "type": "git",
     "url": "https://github.com/theJonan/asLib.git"
   },
-  "main": "as-lib.js",
-  "browser": "as-lib.js",
+  "main": "src/asLib.js",
+  "browser": "src/asLib.js",
   "jspm": {
-    "main": "as-lib",
+    "main": "src/asLib.js",
     "shim": {
       "asLib": {
         "exports": "asLib"
       }
     },
     "files": [
-      "as-lib.js"
+      "src/asLib.js"
     ],
     "buildConfig": {
       "uglify": true
     }
   },
   "spm": {
-    "main": "as-lib.js"
+    "main": "src/asLib.js"
   },
   "devDependencies": {
     "uglify-js": ">=2.7.x",
