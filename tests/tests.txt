@@ -1,0 +1,94 @@
+> var aa = $$.extend({}, {a: 1, b: 2});
+< undefined
+> aa
+< {a: 1, b: 2} = $1
+> var aa = $$.extend({}, {a: 1, b: 2}, { a: 3});
+< undefined
+> aa
+< {a: 3, b: 2} = $2
+> $$.extend(null, {a: 1, b: 2})
+< {a: 1, b: 2} = $1
+> $$.extend(null, [ 1, 2, 3])
+< [1, 2, 3] (3) = $2
+> var aa = $$.renew({}, {a: 1, b: 2}, { a: 3});
+< undefined
+> aa
+< {a: 1, b: 2} = $3
+> var aa = $$.renew({}, {a: 1, b: 2}, { a: 3, c: 4});
+< undefined
+> aa
+< {a: 1, b: 2, c: 4} = $4
+> var aa = $$.renew({}, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4});
+< undefined
+> aa
+< {a: 1, b: {ba: 5, bb: 6}, c: 4} = $5
+> var aa = $$.renew({_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4});
+< undefined
+> aa
+< {_: "", a: 1, b: {ba: 5, bb: 6}, c: 4} = $6
+> var aa = $$.renew({_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bb: 6, bc: 7} } });
+< SyntaxError: Unexpected token '}'. Expected ')' to end a argument list.
+> var aa = $$.renew({_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bb: 6, bc: 7} } );
+< undefined
+> aa
+< {_: "", a: 1, b: {ba: 5, bb: 6}, c: 4} = $7
+> var aa = $$.extend({_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bc: 7} } );
+< undefined
+> aa
+< {_: "", a: 3, b: {ba: 5, bc: 7}, c: 4} = $8
+> var aa = $$.extend(true, {_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bc: 7} } );
+< undefined
+> aa
+< {_: "", a: 3, b: {ba: 5, bb: 6, bc: 7}, c: 4} = $1
+> var aa = $$.renew(true, {_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bc: 7} } );
+< undefined
+> aa
+< {_: "", a: 1, b: {ba: 5, bb: 6}, c: 4} = $2
+> $$.equal("0", "0")
+< true = $1
+> $$.equal({ a: 1, b: 2}, { a: "1", b: 2} )
+< false = $2
+> $$.equal({ a: 1, b: 2}, { a: 1, b: 2} )
+< true = $1
+> $$.equal({ a: 1, b: 2}, { a: 1, b: 2, c: 3} )
+< false = $2
+> $$.similar({ a: 1, b: 2}, { a: 1, b: 2, c: 3} )
+< true = $1
+> $$.similar({ a: 1, b: 2}, { a: 1, b: 3, c: 3} )
+< false = $2
+> $$.weight({ a: 1, b: 2})
+< 2 = $1
+> $$.weight({ a: 1})
+< 1 = $2
+> $$.weight([ 0, 1, 2])
+< 3 = $3
+> $$.aware({ a: 1}, 'a')
+< true = $1
+> $$.aware({ a: 1}, 'b')
+< false = $2
+> $$.can({ a: 1}, 'push')
+< false = $2
+> $$.can([], 'push')
+< true = $1
+> $$.aware([], 'push')
+< true = $1
+> $$.can({ a: 1, push: function () { } }, 'push')
+< true = $1
+> var aa = $$("one", Skill)
+< undefined
+> aa.show()
+< "one" = $1
+> $$.capable(aa, Skill)
+< true = $2
+> var bb = new Array(3);
+< undefined
+> $$.capable(bb, Skill)
+< false = $3
+> $$.capable(bb, Array)
+< false = $3
+> var cc = $$(Array)
+< undefined
+> cc
+< {__skills: {Array: true}} = $4
+> cc.push("a")
+< TypeError: cc.push is not a function. (In 'cc.push("a")', 'cc.push' is undefined)
