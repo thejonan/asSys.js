@@ -1,5 +1,5 @@
 {
-  "name": "thejonan/asLib",
+  "name": "theJonan/asLib",
   "description": "An Agent-Skills (i.e. Entity-Attribute) general purpose library.",
   "keywords": [
     "agent",
@@ -10,7 +10,7 @@
     "prototyping"
   ],
   "homepage": "http://jonan.info/asLib/",
-  "license": "MIT License",
+  "license": "MIT",
   "authors": [
     {
       "name": "Ivan (Jonan) Georgiev",

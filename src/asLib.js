@@ -1,4 +1,4 @@
-var asLib = (function () {
+(function () {
   var extractProps = function(vals) {
     var props = {}, a, p,
         args = Array.prototype.slice.call(arguments, 1);
@@ -81,7 +81,7 @@ var asLib = (function () {
   
   // Create a new agent, with given set of skills: arg1, arg2, ... argN, skill1, skill2, ..., skillN
   // Complexity: o(<number arguments> + <expected skills>)
-	var $$ = function () {
+	var asLib = function () {
   	var obj = null,
   	    skillmap = { },
   	    args = [],
@@ -140,12 +140,12 @@ var asLib = (function () {
 	};
 	
 	// The current version.
-	$$.version = "0.0.0";
+	asLib.version = "0.0.0";
 		
   /** Compare if two objects are completely equal, i.e. each property has the same value.
     * Complexity: o(<number of properties>).
     */
-  $$.equal = function (deepCompare /*, objects */) {
+    asLib.equal = function (deepCompare /*, objects */) {
     var deep = deepCompare,
         args = arguments;
 		if (typeof deep !== 'boolean')
@@ -154,8 +154,8 @@ var asLib = (function () {
 		  args = Array.prototype.slice.call(arguments, 1);
 		
 		return twinScan(args, function (ai, aj) {
-      for (p in extractProps(false, ai, aj)) {
-  		  if (deep && typeof ai[p] === 'object' && typeof aj[p] === 'object' && !$$.equal(deep, ai[p], aj[p]))
+      for (var p in extractProps(false, ai, aj)) {
+  		  if (deep && typeof ai[p] === 'object' && typeof aj[p] === 'object' && !asLib.equal(deep, ai[p], aj[p]))
   		    return false;
   		  else if (ai[p] !== aj[p])
           return false;
@@ -167,7 +167,7 @@ var asLib = (function () {
   /** Compare if two objects are similar, i.e. if existing properties match
     * Complexity: o(<number of properties>).
     */
-	$$.similar = function (deepCompare /*,objects */) {
+	asLib.similar = function (deepCompare /*,objects */) {
   	var deep = deepCompare,
   	    args = arguments;
 		if (typeof deep !== 'boolean')
@@ -177,7 +177,7 @@ var asLib = (function () {
 			
     return twinScan(args, function(ai, aj) {
 		  for (var p in ai) {
-  		  if (deep && typeof ai[p] === 'object' && typeof aj[p] === 'object' && !$$.similar(deep, ai[p], aj[p]))
+  		  if (deep && typeof ai[p] === 'object' && typeof aj[p] === 'object' && !asLib.similar(deep, ai[p], aj[p]))
   		    return false;
         else if (aj[p] !== undefined && ai[p] !== aj[p])
 			    return false;
@@ -191,7 +191,7 @@ var asLib = (function () {
     * IF a property already exists - it is overriden.
     * Complexity: o(<number of properties> * <number of objects>).
     */
-	$$.extend = function (deep /*, objects */) {
+	asLib.extend = function (deep /*, objects */) {
   	var d = deep,
   	    objects = arguments;
 		if (typeof d !== 'boolean')
@@ -205,7 +205,7 @@ var asLib = (function () {
   /** Merges the new properties from given objects into the first one.
     * Complexity: o(<number of properties> * <number of objects>).
     */
-	$$.enhance = function (deep /*, objects */) {
+	asLib.enhance = function (deep /*, objects */) {
   	var d = deep,
   	    objects = arguments;
 		if (typeof d !== 'boolean')
@@ -218,7 +218,7 @@ var asLib = (function () {
 	
 	/** Filters the properties, leaving only those which get `true` from the selector
   	*/
-	$$.filter = function (agent, selector) {
+	asLib.filter = function (agent, selector) {
   	if (typeof agent.filter === 'function')
   	  return agent.filter(selector);
     
@@ -233,7 +233,7 @@ var asLib = (function () {
 	
 	/** Walk on each property of an agent.
   	*/
-	$$.each = function (agent, actor) {
+	asLib.each = function (agent, actor) {
   	if (typeof agent.forEach ==='function')
     	agent.forEach(actor);
     else {
@@ -247,7 +247,7 @@ var asLib = (function () {
     * If `length` property exists and is number, it is returned.
     * Complexity: o(<number of properties>).
     */
-	$$.weight = function (agent) {
+	asLib.weight = function (agent) {
   	if (agent.hasOwnProperty('length') && typeof agent.length == 'number')
   	  return agent.length;
   	  
@@ -260,37 +260,37 @@ var asLib = (function () {
     return cnt;
 	};
 	
-	$$.id = function (skill) {
+	asLib.id = function (skill) {
   	return fnName(skill);
 	};
 	
 	/** Copies all the skills from the given agent, into a new, blank one,
   	* Complexity: o(<number of functions in prototype>);
   	*/
-	$$.mimic = function (agent) {
+	asLib.mimic = function (agent) {
 		var obj = {};
 
-		mergeObjects(false, true, obj, $$.filter(agent, fnOnly));
+		mergeObjects(false, true, obj, asLib.filter(agent, fnOnly));
     return obj;
 	};
 	
 	/** Performs a specific method from a given skill, onto the object
   	* Complexity: o(1)
   	*/
-	$$.act = function (self, skill, activity /*, arguments */) {
+	asLib.act = function (self, skill, activity /*, arguments */) {
 		var args = Array.prototype.slice.call(arguments, 3);
 		return skill.prototype[activity].apply(self, args);
 	};
 		
   /** Tells whether given agent can perform specific activity.
     */
-	$$.can = function (agent, activity) {
+	asLib.can = function (agent, activity) {
 		return (typeof agent === 'object') && agent[activity] != null && (typeof agent[activity] === 'function');
 	};
 
   /** Tells whether tiven agent is aware of given property (activity or value)
     */
-	$$.aware = function (agent, prop) {
+	asLib.aware = function (agent, prop) {
 		return (typeof agent === 'object') && agent[prop] !== undefined;
 	};
 	
@@ -300,7 +300,7 @@ var asLib = (function () {
   	* Complexity: [1] o(<number of skills>),
   	*             [2] o(<number of skills> * <number of properties>)
   	*/
-	$$.capable = function (agent, allskills /* skills */) {
+	asLib.capable = function (agent, allskills /* skills */) {
   	var all = allskills, args;
 		if (typeof all !== 'boolean') {
 			all = false;
@@ -340,7 +340,7 @@ var asLib = (function () {
   	* methods, which invoke the corresponding methods of the containing agents.
   	* Complexity: o(<number of agents in the pool> * (<complexity of selector> + <number of properties>))
   	*/
-	$$.group = function (full, pool, selector) {
+	asLib.group = function (full, pool, selector) {
 		if (typeof full !== 'boolean') {
   		selector = pool;
   		pool = full;
@@ -348,8 +348,7 @@ var asLib = (function () {
     }
     
 		var res = this.mimic(pool),
-				protos = {}, e,
-				cleanup = function (p, a) { return a[p] === 'function'}
+				protos = {}, e;
 				
 		for (var k in pool) {
 			var e = pool[k];
@@ -358,7 +357,7 @@ var asLib = (function () {
 			
 			// Get this done, only if we're interested to use it afterwards...
 			if (full)
-			  mergeObjects(false, true, [ protos, extractProps(true, $$.filter(e, fnOnly)) ]);
+			  mergeObjects(false, true, [ protos, extractProps(true, asLib.filter(e, fnOnly)) ]);
 			  
 			res.push(e);
 		}
@@ -384,9 +383,14 @@ var asLib = (function () {
     
 		return res;
 	};
-		
-	return $$;
-})();
 
-if (window !== undefined && window['$$'] === undefined)
-	window['$$'] = asLib;
+  /** Now finish with some module / export definition for according platforms
+    */
+  if ( typeof module === "object" && module && typeof module.exports === "object" )
+  	module.exports = asLib;
+  else {
+    this.asLib = this.$$ = asLib;
+    if ( typeof define === "function" && define.amd )
+      define(asLib);
+  }
+})();

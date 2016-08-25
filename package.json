@@ -11,7 +11,7 @@
     "prototyping"
   ],
   "homepage": "http://jonan.info/asLib/",
-  "license": "MIT License"
+  "license": "MIT",
   "author": [
     {
       "name": "Ivan (Jonan) Georgiev",
@@ -27,7 +27,7 @@
   "jspm": {
     "main": "as-lib",
     "shim": {
-      "d3": {
+      "asLib": {
         "exports": "asLib"
       }
     },
@@ -47,7 +47,7 @@
   },
   "scripts": {
     "test": "vows && echo",
-    "prepublish": "npm test && rm -f package.js as-lib.js as-lib.min.js as-lib.zip && bin/meteor > package.js && uglifyjs src/adLib.js - -b indent-level=2 -o as-lib.js && bin/uglify as-lib.js > as-lib.min.js && chmod a-w as-lib.js as-lib.min.js package.js && zip as-lib.zip LICENSE as-lib.js as-lib.min.js",
-    "postpublish": "VERSION=`node -e 'console.log(require(\"./package.json\").version)'`; git push && git tag -am \"Release $VERSION.\" v${VERSION} && git push --tags"
+    "prepublish": "npm test && rm -f as-lib.js as-lib.min.js as-lib.zip && uglifyjs src/asLib.js -b indent-level=2 -o as-lib.js && bin/uglify as-lib.js > as-lib.min.js && chmod a-w as-lib.js as-lib.min.js && zip as-lib.zip LICENSE as-lib.js as-lib.min.js",
+    "postpublish": "VERSION=`node -e 'console.log(require(\"./package.json\").version)'`; git push && git tag -am \"Release $VERSION.\" ${VERSION} && git push --tags"
   }
 }
