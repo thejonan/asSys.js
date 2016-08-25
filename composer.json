@@ -1,0 +1,26 @@
+{
+  "name": "thejonan/asLib",
+  "description": "An Agent-Skills (i.e. Entity-Attribute) general purpose library.",
+  "keywords": [
+    "agent",
+    "skills",
+    "entity",
+    "attributes",
+    "characteristics",
+    "prototyping"
+  ],
+  "homepage": "http://jonan.info/asLib/",
+  "license": "MIT License",
+  "authors": [
+    {
+      "name": "Ivan (Jonan) Georgiev",
+      "homepage": "http://jonan.info/"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/theJonan/asLib/issues",
+    "wiki": "https://github.com/theJonan/asLib/wiki",
+    "API": "https://github.com/theJonan/asLib/Reference",
+    "source": "https://github.com/theJonan/asLib"
+  }
+}

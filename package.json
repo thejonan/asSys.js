@@ -1,0 +1,53 @@
+{
+  "name": "asLib",
+  "version": "1.0.0",
+  "description": "An Agent-Skills (i.e. Entity-Attribute) general purpose library.",
+  "keywords": [
+    "agent",
+    "skills",
+    "entity",
+    "attributes",
+    "characteristics",
+    "prototyping"
+  ],
+  "homepage": "http://jonan.info/asLib/",
+  "license": "MIT License"
+  "author": [
+    {
+      "name": "Ivan (Jonan) Georgiev",
+      "homepage": "http://jonan.info/"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theJonan/asLib.git"
+  },
+  "main": "as-lib.js",
+  "browser": "as-lib.js",
+  "jspm": {
+    "main": "as-lib",
+    "shim": {
+      "d3": {
+        "exports": "asLib"
+      }
+    },
+    "files": [
+      "as-lib.js"
+    ],
+    "buildConfig": {
+      "uglify": true
+    }
+  },
+  "spm": {
+    "main": "as-lib.js"
+  },
+  "devDependencies": {
+    "uglify-js": ">=2.7.x",
+    "vows": ">=0.8.x"
+  },
+  "scripts": {
+    "test": "vows && echo",
+    "prepublish": "npm test && rm -f package.js as-lib.js as-lib.min.js as-lib.zip && bin/meteor > package.js && uglifyjs src/adLib.js - -b indent-level=2 -o as-lib.js && bin/uglify as-lib.js > as-lib.min.js && chmod a-w as-lib.js as-lib.min.js package.js && zip as-lib.zip LICENSE as-lib.js as-lib.min.js",
+    "postpublish": "VERSION=`node -e 'console.log(require(\"./package.json\").version)'`; git push && git tag -am \"Release $VERSION.\" v${VERSION} && git push --tags"
+  }
+}
