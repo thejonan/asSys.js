@@ -16,7 +16,7 @@
       for (;objects[i] == null; ++i) ;
       return Object.assign.apply(Object, i == 0 ? objects : Array.prototype.slice.call(objects, i));
     }
-    var obj = objects[i], t, o, p, ol = objects.length, keys;
+    var obj = objects[i], ol = objects.length, keys, o, p;
     while (++i < ol) {
       o = objects[i];
       if (obj == null) {
@@ -27,11 +27,7 @@
       kl = keys.length;
       for (var j = 0, kl = keys.length; j < kl; ++j) {
         p = keys[j];
-        if (newonly && obj.hasOwnProperty(p)) continue;
-        if (!deep || typeof o[p] !== "object") obj[p] = o[p]; else {
-          t = typeof obj[p] === "object" ? obj[p] : {};
-          obj[p] = mergeObjects(deep, newonly, 0, [ t, o[p] ]);
-        }
+        if (!newonly || !obj.hasOwnProperty(p)) obj[p] = !deep || typeof o[p] !== "object" ? o[p] : mergeObjects(deep, newonly, 0, [ typeof obj[p] === "object" ? obj[p] : {}, o[p] ]);
       }
     }
     return obj;
@@ -56,11 +52,10 @@
     return agent && typeof agent[key] === "function";
   };
   var asSys = function() {
-    var obj = null, aux = null, skillmap = {}, args = [], reset = false, missing, skills = Array.prototype.slice.call(arguments, 0);
+    var cls = function() {}, skillmap = {}, missing, obj, args = [], skills = Array.prototype.slice.call(arguments, 0);
     for (var i = 0, a; i < skills.length; ++i) {
       a = skills[i];
       if (typeof a === "function") {
-        reset = true;
         if (a.__expects != null) {
           missing = [ i, 0 ];
           for (var s, j = 0, el = a.__expects.length; j < el; ++j) {
@@ -73,28 +68,35 @@
             continue;
           }
         }
-        skillmap[fnName(a)] = true;
-        aux = Object.create(a.prototype);
-        if (obj == null) obj = aux; else mergeObjects(true, false, 0, [ obj.prototype, aux.prototype ]);
-        a.apply(obj, args);
-      } else {
-        if (reset) {
-          args = [];
-          reset = false;
-        }
-        if (a != null) args.push(a);
-      }
+        skillmap[fnName(a)] = a;
+        if (cls.prototype === undefined) cls.prototype = Object.create(a.prototype); else mergeObjects(true, false, 0, [ cls.prototype, a.prototype ]);
+      } else args.push(a);
     }
-    Object.defineProperties(obj, {
+    Object.defineProperties(cls.prototype, {
       __skills: {
         enumerable: false,
         writable: false,
         value: skillmap
       }
     });
+    obj = new cls();
+    if (args.length > 0) {
+      args.unshift(obj);
+      asSys.init.apply(this, args);
+    }
     return obj;
   };
-  asSys.version = "0.0.0";
+  asSys.version = "{{VERSION}}";
+  asSys.init = function(agent) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    if (agent.__skills === undefined) return agent.prototype.apply(agent, args) || agent;
+    var skills = Object.keys(agent.__skills), s;
+    for (var i = 0, sl = skills.length; i < sl; ++i) {
+      s = agent.__skills[skills[i]];
+      s.apply(agent, args);
+    }
+    return agent;
+  };
   asSys.equal = function(deepCompare) {
     var deep = deepCompare, start = 0;
     if (typeof deep !== "boolean") deep = false; else start = 1;
@@ -127,16 +129,17 @@
   };
   asSys.filter = function(agent, selector) {
     if (typeof agent.filter === "function") return agent.filter(selector);
-    var res = {};
-    for (var p in agent) {
+    var res = {}, p, keys = Object.keys(agent);
+    for (var i = 0, kl = keys.length; i < kl; ++i) {
+      p = keys[i];
       if (selector(p, agent)) res[p] = agent[p];
     }
     return res;
   };
   asSys.each = function(agent, actor) {
     if (typeof agent.forEach === "function") agent.forEach(actor); else {
-      var k = Object.keys(p), kl = k.length, p;
-      for (var i = 0; i < kl; ++i) {
+      var k = Object.keys(p), p;
+      for (var i = 0, kl = k.length; i < kl; ++i) {
         p = k[i];
         actor(agent[p], p, agent);
       }
@@ -149,13 +152,15 @@
     return fnName(skill);
   };
   asSys.mimic = function(agent) {
-    var obj = {};
-    mergeObjects(false, true, 0, [ obj ].concat(asSys.filter(agent, fnOnly)));
-    return obj;
+    var o = Object.create(Object.getPrototypeOf(agent));
+    if (arguments.length > 1) {
+      agent = o;
+      asSys.init.apply(this, arguments);
+    }
+    return o;
   };
   asSys.act = function(self, skill, activity) {
-    var args = Array.prototype.slice.call(arguments, 3);
-    return skill.prototype[activity].apply(self, args);
+    return skill.prototype[activity].apply(self, Array.prototype.slice.call(arguments, 3));
   };
   asSys.can = function(agent, activity) {
     return typeof agent === "object" && agent[activity] != null && typeof agent[activity] === "function";
@@ -164,23 +169,13 @@
     return typeof agent === "object" && agent[prop] !== undefined;
   };
   asSys.capable = function(agent, allskills) {
-    var all = allskills, i = 1;
+    var all = allskills, s, i = 1;
     if (typeof all !== "boolean") all = true; else i = 2;
-    if (agent.__skills !== undefined) {
-      for (var cnt = 0, start = i, al = arguments.length; i < al; ++i) {
-        if (agent.__skills[fnName(arguments[i])]) ++cnt;
-      }
-      return all ? cnt == arguments.length - start : cnt > 0;
-    } else {
-      var args = Array.prototype.slice.call(arguments, i - 1), prots = extractProps.apply(undefined, args.map(function(s, i) {
-        return i > 0 ? s.prototype : true;
-      })), cnt = 0, protcnt = 0;
-      for (var p in prots) {
-        if (agent[p] === prots[p]) ++cnt;
-        ++protcnt;
-      }
-      return cnt > 0 && (all ? protcnt == cnt : true);
+    for (var cnt = 0, start = i, al = arguments.length; i < al; ++i) {
+      s = arguments[i];
+      if (agent.__skills !== undefined && agent.__skills[fnName(s)]) ++cnt; else if (s.prototype.isPrototypeOf(agent)) ++cnt;
     }
+    return cnt > 0 && (all ? arguments.length - start == cnt : true);
   };
   asSys.group = function(full, pool, selector) {
     if (typeof full !== "boolean") {

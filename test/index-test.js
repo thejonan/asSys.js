@@ -11,22 +11,21 @@ SkillChange.prototype.change = function (a) { return this.value = a; }
 
 suite.addBatch({
   "asSys:": {
+    topic: $$(SkillShow, "one"),
     "is not a global when require’d": function() {
       assert.equal("asSys" in global, false);
     },
     
     "Agent allocation": {
-      "Primitive object": function () {
-        var o = $$("one", SkillShow);
+      "Primitive object": function (o) {
         assert.deepEqual(o, { value: "one" });
         assert.equal(o.show(), "one");
       },
       "Using native type": function () {
         
       },
-      "Checking skills property": function () {
-        var o = $$("one", SkillShow);
-        assert.isTrue(o.__skills.SkillShow);
+      "Checking skills property": function (o) {
+        assert.isDefined(o.__skills.SkillShow);
       }
     },
     
@@ -169,7 +168,7 @@ suite.addBatch({
         },
         "Workability of skills": function (aa) {
           aa.change("two");
-          assert.equal(aa.val(), "two");
+          assert.equal(aa.show(), "two");
         }
       },
       "Complex skills capabilities": {

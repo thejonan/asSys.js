@@ -20,7 +20,7 @@
       return Object.assign.apply(Object, i == 0 ? objects : Array.prototype.slice.call(objects, i));
     }
     
-    var obj = objects[i], t, o, p, ol = objects.length, keys;
+    var obj = objects[i], ol = objects.length, keys, o, p;
     while (++i < ol) {
       o = objects[i];
       
@@ -34,14 +34,8 @@
       kl = keys.length;
       for (var j = 0, kl = keys.length; j < kl; ++j) {
         p = keys[j];
-        if (newonly && obj.hasOwnProperty(p))
-          continue;
-        if (!deep || typeof o[p] !== 'object')
-          obj[p] = o[p];
-        else {
-          t = typeof obj[p] === 'object' ? obj[p] : {};
-          obj[p] = mergeObjects(deep, newonly, 0, [t, o[p] ]);
-        }
+        if (!newonly || !obj.hasOwnProperty(p))
+          obj[p] = !deep || typeof o[p] !== 'object' ? o[p] : mergeObjects(deep, newonly, 0, [ (typeof obj[p] === 'object' ? obj[p] : {}), o[p] ]);
       }
     }
     
@@ -76,14 +70,15 @@
     return agent && typeof agent[key] === 'function';
   };
   
-  // Create a new agent, with given set of skills: arg1, arg2, ... argN, skill1, skill2, ..., skillN
-  // Complexity: o(<number arguments> + <expected skills>)
+  /** Create a new agent, with given set of skills: skill1, skill2, ..., skillN
+    *
+    * Complexity: o(<required skills>)
+    */
 	var asSys = function () {
-  	var obj = null, aux = null,
+  	var cls = function () {},
   	    skillmap = { },
+  	    missing, obj,
   	    args = [],
-  	    reset = false,
-  	    missing,
   	    skills = Array.prototype.slice.call(arguments, 0);
   	    
     // Note: skills.length needs to be obtained everytime, because it may change.
@@ -92,8 +87,6 @@
     	
     	// We've come to a skill reference
     	if (typeof a === 'function') {
-      	reset = true;
-      	
       	// If it has dependencies
       	if (a.__expects != null) {
         	missing = [i, 0];
@@ -114,37 +107,51 @@
         
         // Ok, we don't have expectations that are not met - merge the prototypes
         // Invoke the initialization for it and add this skill to agent's.
-      	skillmap[fnName(a)] = true;
-      	aux = Object.create(a.prototype);
-        if (obj == null)
-          obj = aux;
+      	skillmap[fnName(a)] = a;
+      	if (cls.prototype === undefined)
+      	  cls.prototype = Object.create(a.prototype);
         else
-          mergeObjects(true, false, 0, [ obj.prototype, aux.prototype ]);
-          
-        a.apply(obj, args);
+          mergeObjects(true, false, 0, [ cls.prototype, a.prototype ])
       }
-      else {
-        if (reset) {
-          args = [];
-          reset = false;
-        }
-        
-        if (a != null)
-          args.push(a);
-      }
+      else
+        args.push(a);
     }
     
-    Object.defineProperties(obj, { __skills: { enumerable: false, writable: false, value: skillmap } });
+    Object.defineProperties(cls.prototype, { __skills: { enumerable: false, writable: false, value: skillmap } });
+    obj = new cls();
+    if (args.length > 0) {
+      args.unshift(obj);
+      asSys.init.apply(this, args);
+    }
     return obj;
 	};
 	
-	// The current version.
-	asSys.version = "0.0.0";
-		
+	// The current version. Keep it this way - packaging script will put package.json's derived value here.
+	asSys.version = "{{VERSION}}";
+
+  /** Initialize the agent with given skill's constructor, passing the rest of the arguments
+    *
+    * Complexity: o(<number of capable skills>).
+    */	
+	asSys.init = function (agent) {
+  	var args = Array.prototype.slice.call(arguments, 1);
+  	if (agent.__skills === undefined)
+      return agent.prototype.apply(agent, args) || agent;
+      
+    var skills = Object.keys(agent.__skills), s;
+    for (var i = 0, sl = skills.length; i < sl; ++i) {
+      s = agent.__skills[skills[i]];
+      s.apply(agent, args);
+    }
+    
+    return agent;
+	};
+	
   /** Compare if two objects are completely equal, i.e. each property has the same value.
+    *
     * Complexity: o(<number of properties>).
     */
-    asSys.equal = function (deepCompare /*, objects */) {
+  asSys.equal = function (deepCompare /*, objects */) {
     var deep = deepCompare,
         start = 0;
 		if (typeof deep !== 'boolean')
@@ -164,6 +171,7 @@
 	};
 		
   /** Compare if two objects are similar, i.e. if existing properties match
+    *
     * Complexity: o(<number of properties>).
     */
 	asSys.similar = function (deepCompare /*,objects */) {
@@ -188,6 +196,7 @@
 	
   /** Merges all the properties from given objects into the first one.
     * IF a property already exists - it is overriden.
+    *
     * Complexity: o(<number of properties> * <number of objects>).
     */
 	asSys.extend = function (deep /*, objects */) {
@@ -202,6 +211,7 @@
 	};
 	
   /** Merges the new properties from given objects into the first one.
+    *
     * Complexity: o(<number of properties> * <number of objects>).
     */
 	asSys.enhance = function (deep /*, objects */) {
@@ -216,13 +226,17 @@
 	};
 	
 	/** Filters the properties, leaving only those which get `true` from the selector
+  	*
+  	* Complexity: o(<number of own properties>)
   	*/
 	asSys.filter = function (agent, selector) {
   	if (typeof agent.filter === 'function')
   	  return agent.filter(selector);
     
-    var res = {};
-    for (var p in agent) {
+    var res = {}, p,
+        keys = Object.keys(agent);
+    for (var i = 0, kl = keys.length; i < kl; ++i) {
+      p = keys[i];
       if (selector(p, agent))
         res[p] = agent[p];
     }
@@ -231,15 +245,15 @@
 	};
 	
 	/** Walk on each property of an agent.
+  	*
+  	* Complexity: o(<number of own properties>).
   	*/
 	asSys.each = function (agent, actor) {
   	if (typeof agent.forEach ==='function')
     	agent.forEach(actor);
     else {
-      var k = Object.keys(p),
-          kl = k.length,
-          p;
-      for (var i = 0;i < kl; ++i) {
+      var k = Object.keys(p), p;
+      for (var i = 0, kl = k.length; i < kl; ++i) {
         p = k[i];
         actor(agent[p], p, agent);
       }
@@ -247,8 +261,9 @@
 	};
 	
   /** Calculates the number of properties in the agent. 
-    * If `length` property exists and is number, it is returned.
-    * Complexity: o(<number of properties>).
+    * If `length` property exists and is a number, it is returned. 
+    * Non objects are considered to weight 1.
+    * Complexity: o(1).
     */
 	asSys.weight = function (agent) {
   	if (typeof agent !== 'object')
@@ -264,21 +279,22 @@
 	};
 	
 	/** Copies all the skills from the given agent, into a new, blank one,
-  	* Complexity: o(<number of functions in prototype>);
+  	* Complexity: o(1);
   	*/
 	asSys.mimic = function (agent) {
-		var obj = {};
-
-		mergeObjects(false, true, 0, [obj].concat(asSys.filter(agent, fnOnly)));
-    return obj;
+  	var o = Object.create(Object.getPrototypeOf(agent));
+  	if (arguments.length > 1) {
+    	agent = o;
+  	  asSys.init.apply(this, arguments);
+    }
+		return o;
 	};
 	
 	/** Performs a specific method from a given skill, onto the object
   	* Complexity: o(1)
   	*/
 	asSys.act = function (self, skill, activity /*, arguments */) {
-		var args = Array.prototype.slice.call(arguments, 3);
-		return skill.prototype[activity].apply(self, args);
+		return skill.prototype[activity].apply(self, Array.prototype.slice.call(arguments, 3));
 	};
 		
   /** Tells whether given agent can perform specific activity.
@@ -300,43 +316,29 @@
   	*             [2] o(<number of skills> * <number of properties>)
   	*/
 	asSys.capable = function (agent, allskills /* skills */) {
-  	var all = allskills, 
+  	var all = allskills, s,
   	    i = 1;
 		if (typeof all !== 'boolean')
 			all = true;
 		else
 		  i = 2;
 
-    // Check if this is known agent and we can use the predefined
-    // property				
-    if (agent.__skills !== undefined) {
-      for (var cnt = 0, start = i, al = arguments.length; i < al; ++i) {
-        if (agent.__skills[fnName(arguments[i])])
-          ++cnt;
-      }
-      
-      return all ? cnt == (arguments.length - start) : cnt > 0;
+    for (var cnt = 0, start = i, al = arguments.length; i < al; ++i) {
+      s = arguments[i];
+      if (agent.__skills !== undefined && agent.__skills[fnName(s)])
+        ++cnt;
+      else if (s.prototype.isPrototypeOf(agent))
+        ++cnt;
     }
-    else {
-      // The `vals` argument IS passed to the extractProps function.
-      var args = Array.prototype.slice.call(arguments, i - 1),
-          prots = extractProps.apply(undefined, args.map(function (s, i) { return i > 0 ? s.prototype : true; })),
-          cnt = 0, protcnt = 0;
-      for (var p in prots) {
-        if (agent[p] === prots[p])
-          ++cnt;
-          
-        ++protcnt;
-      }
 
-      return cnt > 0 && (all ? protcnt == cnt : true);
-    }
+    return cnt > 0 && (all ? (arguments.length - start) == cnt : true);
 	};
 	
 	/** Groups agents from given pool, according to given selector.
   	* The returned group has same properties as the given pool.
   	* If `full` is set - the returned pool also has accumulative skills, i.e.
   	* methods, which invoke the corresponding methods of the containing agents.
+  	*
   	* Complexity: o(<number of agents in the pool> * (<complexity of selector> + <number of properties>))
   	*/
 	asSys.group = function (full, pool, selector) {
