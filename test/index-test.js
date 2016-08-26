@@ -83,6 +83,53 @@ suite.addBatch({
       "Similarity for object with different value for same property": function () {
         assert.isFalse($$.similar({ a: 1, b: 2}, { a: 1, b: 3, c: 3} ));
       }
+    },
+    
+    "Agent simple characteristics:": {
+      "Weight counting with simple object": function () {
+        assert.equal($$.weight({ a: 1}), 1);
+      },
+      "Weight counting of a bigger object": function () {
+        assert.equal($$.weight({ a: 1, b: 2}), 2);
+      },
+      "Weight counting of an array": function () {
+        assert.equal($$.weight([ 0, 1, 2]), 3);
+      },
+      "Weight counting of primitive object": function () {
+        assert.equal($$.weight("string"), 1);
+      },
+      "Awareness for a property": function () {
+        assert.isTrue($$.aware({ a: 1}, 'a'));
+      },
+      "Unawareness for a missing property": function () {
+        assert.isFalse($$.aware({ a: 1}, 'b'));
+      },
+      "Awareness for a method": function () {
+        assert.isTrue($$.aware([], 'push'));
+      },
+      "Ability to invoke a missing method check": function () {
+        assert.isFalse($$.can({ a: 1}, 'push'));
+      },
+      "Ability to invoke an existing method check": function () {
+        assert.isTrue($$.can([], 'push'));
+      },
+      "Ability to call custom method": function () {
+        assert.isTrue($$.can({ a: 1, push: function () { } }, 'push'));
+      }
+    },
+    
+    "Agent capabilities checks": {
+      "Custom skill check": function () {
+        var aa = $$("one", Skill);
+        assert.isTrue($$.capable(aa, Skill));
+        
+      },
+      "An array capabilities check": function () {
+        assert.isFalse($$.capable([], Skill));
+      },
+      "An array own capabilities check": function () {
+        assert.isTrue($$.capable([], Array));
+      }
     }
   }
 });

@@ -1,7 +1,7 @@
 {
-  "name": "asLib",
+  "name": "asSys",
   "version": "1.0.0",
-  "description": "An Agent-Skills (i.e. Entity-Attribute) general purpose library.",
+  "description": "An Agent-Skills (i.e. Entity-Attribute) System JavaScript library.",
   "keywords": [
     "agent",
     "skills",
@@ -10,7 +10,7 @@
     "characteristics",
     "prototyping"
   ],
-  "homepage": "http://jonan.info/asLib/",
+  "homepage": "http://jonan.info/asSysJs/",
   "license": "MIT",
   "author": [
     {
@@ -20,34 +20,34 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/theJonan/asLib.git"
+    "url": "https://github.com/theJonan/asSysJs.git"
   },
-  "main": "src/asLib.js",
-  "browser": "src/asLib.js",
+  "main": "as-sys.js",
+  "browser": "as-sys.min.js",
   "jspm": {
-    "main": "src/asLib.js",
+    "main": "as-sys.js",
     "shim": {
-      "asLib": {
-        "exports": "asLib"
+      "asSys": {
+        "exports": "asSys"
       }
     },
     "files": [
-      "src/asLib.js"
+      "src/asSys.js"
     ],
     "buildConfig": {
       "uglify": true
     }
   },
   "spm": {
-    "main": "src/asLib.js"
+    "main": "as-sys.js"
   },
   "devDependencies": {
     "uglify-js": ">=2.7.x",
     "vows": ">=0.8.x"
   },
   "scripts": {
-    "test": "vows && echo",
-    "prepublish": "npm test && rm -f as-lib.js as-lib.min.js as-lib.zip && uglifyjs src/asLib.js -b indent-level=2 -o as-lib.js && bin/uglify as-lib.js > as-lib.min.js && chmod a-w as-lib.js as-lib.min.js && zip as-lib.zip LICENSE as-lib.js as-lib.min.js",
+    "test": "rm -f as-sys.js as-sys.min.js as-sys.js.zip && uglifyjs src/asSys.js -b indent-level=2 -o as-sys.js && vows && echo",
+    "prepublish": "npm test && bin/uglify as-sys.js > as-sys.min.js && chmod a-w as-sys.js as-sys.min.js && zip as-sys.js.zip LICENSE as-sys.js as-sys.min.js",
     "postpublish": "VERSION=`node -e 'console.log(require(\"./package.json\").version)'`; git push && git tag -am \"Release $VERSION.\" ${VERSION} && git push --tags"
   }
 }

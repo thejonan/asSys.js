@@ -1,6 +1,6 @@
 {
-  "name": "theJonan/asLib",
-  "description": "An Agent-Skills (i.e. Entity-Attribute) general purpose library.",
+  "name": "theJonan/asSysJs",
+  "description": "An Agent-Skills (i.e. Entity-Attribute) System JavaScript library.",
   "keywords": [
     "agent",
     "skills",
@@ -9,7 +9,7 @@
     "characteristics",
     "prototyping"
   ],
-  "homepage": "http://jonan.info/asLib/",
+  "homepage": "http://jonan.info/asSysJs/",
   "license": "MIT",
   "authors": [
     {
@@ -18,9 +18,9 @@
     }
   ],
   "support": {
-    "issues": "https://github.com/theJonan/asLib/issues",
-    "wiki": "https://github.com/theJonan/asLib/wiki",
-    "API": "https://github.com/theJonan/asLib/Reference",
-    "source": "https://github.com/theJonan/asLib"
+    "issues": "https://github.com/theJonan/asSysJs/issues",
+      "wiki": "https://github.com/theJonan/asSysJs/wiki",
+    "API": "https://github.com/theJonan/asSysJs/Reference",
+    "source": "https://github.com/theJonan/asSysJs"
   }
 }

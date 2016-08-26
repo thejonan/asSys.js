@@ -81,7 +81,7 @@
   
   // Create a new agent, with given set of skills: arg1, arg2, ... argN, skill1, skill2, ..., skillN
   // Complexity: o(<number arguments> + <expected skills>)
-	var asLib = function () {
+	var asSys = function () {
   	var obj = null,
   	    skillmap = { },
   	    args = [],
@@ -140,12 +140,12 @@
 	};
 	
 	// The current version.
-	asLib.version = "0.0.0";
+	asSys.version = "0.0.0";
 		
   /** Compare if two objects are completely equal, i.e. each property has the same value.
     * Complexity: o(<number of properties>).
     */
-    asLib.equal = function (deepCompare /*, objects */) {
+    asSys.equal = function (deepCompare /*, objects */) {
     var deep = deepCompare,
         args = arguments;
 		if (typeof deep !== 'boolean')
@@ -155,7 +155,7 @@
 		
 		return twinScan(args, function (ai, aj) {
       for (var p in extractProps(false, ai, aj)) {
-  		  if (deep && typeof ai[p] === 'object' && typeof aj[p] === 'object' && !asLib.equal(deep, ai[p], aj[p]))
+  		  if (deep && typeof ai[p] === 'object' && typeof aj[p] === 'object' && !asSys.equal(deep, ai[p], aj[p]))
   		    return false;
   		  else if (ai[p] !== aj[p])
           return false;
@@ -167,7 +167,7 @@
   /** Compare if two objects are similar, i.e. if existing properties match
     * Complexity: o(<number of properties>).
     */
-	asLib.similar = function (deepCompare /*,objects */) {
+	asSys.similar = function (deepCompare /*,objects */) {
   	var deep = deepCompare,
   	    args = arguments;
 		if (typeof deep !== 'boolean')
@@ -177,7 +177,7 @@
 			
     return twinScan(args, function(ai, aj) {
 		  for (var p in ai) {
-  		  if (deep && typeof ai[p] === 'object' && typeof aj[p] === 'object' && !asLib.similar(deep, ai[p], aj[p]))
+  		  if (deep && typeof ai[p] === 'object' && typeof aj[p] === 'object' && !asSys.similar(deep, ai[p], aj[p]))
   		    return false;
         else if (aj[p] !== undefined && ai[p] !== aj[p])
 			    return false;
@@ -191,7 +191,7 @@
     * IF a property already exists - it is overriden.
     * Complexity: o(<number of properties> * <number of objects>).
     */
-	asLib.extend = function (deep /*, objects */) {
+	asSys.extend = function (deep /*, objects */) {
   	var d = deep,
   	    objects = arguments;
 		if (typeof d !== 'boolean')
@@ -205,7 +205,7 @@
   /** Merges the new properties from given objects into the first one.
     * Complexity: o(<number of properties> * <number of objects>).
     */
-	asLib.enhance = function (deep /*, objects */) {
+	asSys.enhance = function (deep /*, objects */) {
   	var d = deep,
   	    objects = arguments;
 		if (typeof d !== 'boolean')
@@ -218,7 +218,7 @@
 	
 	/** Filters the properties, leaving only those which get `true` from the selector
   	*/
-	asLib.filter = function (agent, selector) {
+	asSys.filter = function (agent, selector) {
   	if (typeof agent.filter === 'function')
   	  return agent.filter(selector);
     
@@ -233,7 +233,7 @@
 	
 	/** Walk on each property of an agent.
   	*/
-	asLib.each = function (agent, actor) {
+	asSys.each = function (agent, actor) {
   	if (typeof agent.forEach ==='function')
     	agent.forEach(actor);
     else {
@@ -247,7 +247,7 @@
     * If `length` property exists and is number, it is returned.
     * Complexity: o(<number of properties>).
     */
-	asLib.weight = function (agent) {
+	asSys.weight = function (agent) {
   	if (agent.hasOwnProperty('length') && typeof agent.length == 'number')
   	  return agent.length;
   	  
@@ -260,37 +260,37 @@
     return cnt;
 	};
 	
-	asLib.id = function (skill) {
+	asSys.id = function (skill) {
   	return fnName(skill);
 	};
 	
 	/** Copies all the skills from the given agent, into a new, blank one,
   	* Complexity: o(<number of functions in prototype>);
   	*/
-	asLib.mimic = function (agent) {
+	asSys.mimic = function (agent) {
 		var obj = {};
 
-		mergeObjects(false, true, obj, asLib.filter(agent, fnOnly));
+		mergeObjects(false, true, obj, asSys.filter(agent, fnOnly));
     return obj;
 	};
 	
 	/** Performs a specific method from a given skill, onto the object
   	* Complexity: o(1)
   	*/
-	asLib.act = function (self, skill, activity /*, arguments */) {
+	asSys.act = function (self, skill, activity /*, arguments */) {
 		var args = Array.prototype.slice.call(arguments, 3);
 		return skill.prototype[activity].apply(self, args);
 	};
 		
   /** Tells whether given agent can perform specific activity.
     */
-	asLib.can = function (agent, activity) {
+	asSys.can = function (agent, activity) {
 		return (typeof agent === 'object') && agent[activity] != null && (typeof agent[activity] === 'function');
 	};
 
   /** Tells whether tiven agent is aware of given property (activity or value)
     */
-	asLib.aware = function (agent, prop) {
+	asSys.aware = function (agent, prop) {
 		return (typeof agent === 'object') && agent[prop] !== undefined;
 	};
 	
@@ -300,7 +300,7 @@
   	* Complexity: [1] o(<number of skills>),
   	*             [2] o(<number of skills> * <number of properties>)
   	*/
-	asLib.capable = function (agent, allskills /* skills */) {
+	asSys.capable = function (agent, allskills /* skills */) {
   	var all = allskills, args;
 		if (typeof all !== 'boolean') {
 			all = false;
@@ -340,7 +340,7 @@
   	* methods, which invoke the corresponding methods of the containing agents.
   	* Complexity: o(<number of agents in the pool> * (<complexity of selector> + <number of properties>))
   	*/
-	asLib.group = function (full, pool, selector) {
+	asSys.group = function (full, pool, selector) {
 		if (typeof full !== 'boolean') {
   		selector = pool;
   		pool = full;
@@ -357,7 +357,7 @@
 			
 			// Get this done, only if we're interested to use it afterwards...
 			if (full)
-			  mergeObjects(false, true, [ protos, extractProps(true, asLib.filter(e, fnOnly)) ]);
+			  mergeObjects(false, true, [ protos, extractProps(true, asSys.filter(e, fnOnly)) ]);
 			  
 			res.push(e);
 		}
@@ -387,10 +387,10 @@
   /** Now finish with some module / export definition for according platforms
     */
   if ( typeof module === "object" && module && typeof module.exports === "object" )
-  	module.exports = asLib;
+  	module.exports = asSys;
   else {
-    this.asLib = this.$$ = asLib;
+    this.asSys = this.$$ = asSys;
     if ( typeof define === "function" && define.amd )
-      define(asLib);
+      define(asSys);
   }
 })();

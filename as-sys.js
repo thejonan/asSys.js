@@ -51,7 +51,7 @@
   var fnOnly = function(key, agent) {
     return agent && typeof agent[key] === "function";
   };
-  var asLib = function() {
+  var asSys = function() {
     var obj = null, skillmap = {}, args = [], reset = false, missing, skills = Array.prototype.slice.call(arguments, 0);
     for (var i = 0, a; i < skills.length; ++i) {
       a = skills[i];
@@ -83,38 +83,38 @@
     if (obj != null) obj.__skills = skillmap;
     return obj;
   };
-  asLib.version = "0.0.0";
-  asLib.equal = function(deepCompare) {
+  asSys.version = "0.0.0";
+  asSys.equal = function(deepCompare) {
     var deep = deepCompare, args = arguments;
     if (typeof deep !== "boolean") deep = false; else args = Array.prototype.slice.call(arguments, 1);
     return twinScan(args, function(ai, aj) {
       for (var p in extractProps(false, ai, aj)) {
-        if (deep && typeof ai[p] === "object" && typeof aj[p] === "object" && !asLib.equal(deep, ai[p], aj[p])) return false; else if (ai[p] !== aj[p]) return false;
+        if (deep && typeof ai[p] === "object" && typeof aj[p] === "object" && !asSys.equal(deep, ai[p], aj[p])) return false; else if (ai[p] !== aj[p]) return false;
       }
       return true;
     });
   };
-  asLib.similar = function(deepCompare) {
+  asSys.similar = function(deepCompare) {
     var deep = deepCompare, args = arguments;
     if (typeof deep !== "boolean") deep = false; else args = Array.prototype.slice.call(arguments, 1);
     return twinScan(args, function(ai, aj) {
       for (var p in ai) {
-        if (deep && typeof ai[p] === "object" && typeof aj[p] === "object" && !asLib.similar(deep, ai[p], aj[p])) return false; else if (aj[p] !== undefined && ai[p] !== aj[p]) return false;
+        if (deep && typeof ai[p] === "object" && typeof aj[p] === "object" && !asSys.similar(deep, ai[p], aj[p])) return false; else if (aj[p] !== undefined && ai[p] !== aj[p]) return false;
       }
       return true;
     });
   };
-  asLib.extend = function(deep) {
+  asSys.extend = function(deep) {
     var d = deep, objects = arguments;
     if (typeof d !== "boolean") d = false; else objects = Array.prototype.slice.call(arguments, 1);
     return mergeObjects(d, false, objects);
   };
-  asLib.enhance = function(deep) {
+  asSys.enhance = function(deep) {
     var d = deep, objects = arguments;
     if (typeof d !== "boolean") d = false; else objects = Array.prototype.slice.call(arguments, 1);
     return mergeObjects(d, true, objects);
   };
-  asLib.filter = function(agent, selector) {
+  asSys.filter = function(agent, selector) {
     if (typeof agent.filter === "function") return agent.filter(selector);
     var res = {};
     for (var p in agent) {
@@ -122,12 +122,12 @@
     }
     return res;
   };
-  asLib.each = function(agent, actor) {
+  asSys.each = function(agent, actor) {
     if (typeof agent.forEach === "function") agent.forEach(actor); else {
       for (var p in agent) if (agent.hasOwnProperty(p)) actor(agent[p], p, agent);
     }
   };
-  asLib.weight = function(agent) {
+  asSys.weight = function(agent) {
     if (agent.hasOwnProperty("length") && typeof agent.length == "number") return agent.length;
     var cnt = 0;
     for (var p in agent) {
@@ -135,25 +135,25 @@
     }
     return cnt;
   };
-  asLib.id = function(skill) {
+  asSys.id = function(skill) {
     return fnName(skill);
   };
-  asLib.mimic = function(agent) {
+  asSys.mimic = function(agent) {
     var obj = {};
-    mergeObjects(false, true, obj, asLib.filter(agent, fnOnly));
+    mergeObjects(false, true, obj, asSys.filter(agent, fnOnly));
     return obj;
   };
-  asLib.act = function(self, skill, activity) {
+  asSys.act = function(self, skill, activity) {
     var args = Array.prototype.slice.call(arguments, 3);
     return skill.prototype[activity].apply(self, args);
   };
-  asLib.can = function(agent, activity) {
+  asSys.can = function(agent, activity) {
     return typeof agent === "object" && agent[activity] != null && typeof agent[activity] === "function";
   };
-  asLib.aware = function(agent, prop) {
+  asSys.aware = function(agent, prop) {
     return typeof agent === "object" && agent[prop] !== undefined;
   };
-  asLib.capable = function(agent, allskills) {
+  asSys.capable = function(agent, allskills) {
     var all = allskills, args;
     if (typeof all !== "boolean") {
       all = false;
@@ -175,7 +175,7 @@
       return all ? protcnt == cnt : cnt > 0;
     }
   };
-  asLib.group = function(full, pool, selector) {
+  asSys.group = function(full, pool, selector) {
     if (typeof full !== "boolean") {
       selector = pool;
       pool = full;
@@ -185,7 +185,7 @@
     for (var k in pool) {
       var e = pool[k];
       if (!selector.call(e, e, k, pool)) continue;
-      if (full) mergeObjects(false, true, [ protos, extractProps(true, asLib.filter(e, fnOnly)) ]);
+      if (full) mergeObjects(false, true, [ protos, extractProps(true, asSys.filter(e, fnOnly)) ]);
       res.push(e);
     }
     if (full) {
@@ -203,8 +203,8 @@
     }
     return res;
   };
-  if (typeof module === "object" && module && typeof module.exports === "object") module.exports = asLib; else {
-    this.asLib = this.$$ = asLib;
-    if (typeof define === "function" && define.amd) define(asLib);
+  if (typeof module === "object" && module && typeof module.exports === "object") module.exports = asSys; else {
+    this.asSys = this.$$ = asSys;
+    if (typeof define === "function" && define.amd) define(asSys);
   }
 })();
