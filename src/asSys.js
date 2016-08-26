@@ -1,13 +1,14 @@
 (function () {
   var extractProps = function(vals) {
-    var props = {}, a, p,
-        args = Array.prototype.slice.call(arguments, 1);
+    var props = {}, a, p, keys;
 
-    for (var i = 0, al = args.length; i < al; ++i) {
-      a = args[i];
-      for (p in a)
-        if (a.hasOwnProperty(p))
-          props[p] = vals ? a[p] : true;
+    for (var i = 1, al = arguments.length; i < al; ++i) {
+      a = arguments[i];
+      keys = Object.keys(a);
+      for (var j = 0, kl = keys.length; j < kl; ++j) {
+        p = keys[j];
+        props[p] = vals ? a[p] : true;
+      }
     }
 
     return props;
@@ -19,7 +20,7 @@
       return Object.assign.apply(Object, i == 0 ? objects : Array.prototype.slice.call(objects, i));
     }
     
-    var obj = objects[i], t, o, p, ol = objects.length;
+    var obj = objects[i], t, o, p, ol = objects.length, keys;
     while (++i < ol) {
       o = objects[i];
       
@@ -28,10 +29,11 @@
         obj = o;
         continue;
       }
-
-      for (p in o) {
-        if (!o.hasOwnProperty(p))
-          continue;
+      
+      keys = Object.keys(o);
+      kl = keys.length;
+      for (var j = 0, kl = keys.length; j < kl; ++j) {
+        p = keys[j];
         if (newonly && obj.hasOwnProperty(p))
           continue;
         if (!deep || typeof o[p] !== 'object')
@@ -77,7 +79,7 @@
   // Create a new agent, with given set of skills: arg1, arg2, ... argN, skill1, skill2, ..., skillN
   // Complexity: o(<number arguments> + <expected skills>)
 	var asSys = function () {
-  	var obj = null,
+  	var obj = null, aux = null,
   	    skillmap = { },
   	    args = [],
   	    reset = false,
@@ -113,10 +115,11 @@
         // Ok, we don't have expectations that are not met - merge the prototypes
         // Invoke the initialization for it and add this skill to agent's.
       	skillmap[fnName(a)] = true;
+      	aux = Object.create(a.prototype);
         if (obj == null)
-          obj = Object.create(a.prototype);
+          obj = aux;
         else
-          mergeObjects(false, true, 0, [ obj.prototype, a.prototype ]);
+          mergeObjects(true, false, 0, [ obj.prototype, aux.prototype ]);
           
         a.apply(obj, args);
       }
@@ -126,7 +129,8 @@
           reset = false;
         }
         
-        args.push(a);
+        if (a != null)
+          args.push(a);
       }
     }
     
@@ -232,9 +236,13 @@
   	if (typeof agent.forEach ==='function')
     	agent.forEach(actor);
     else {
-      for (var p in agent)
-        if (agent.hasOwnProperty(p))
-          actor(agent[p], p, agent);
+      var k = Object.keys(p),
+          kl = k.length,
+          p;
+      for (var i = 0;i < kl; ++i) {
+        p = k[i];
+        actor(agent[p], p, agent);
+      }
     }
 	};
 	
@@ -247,14 +255,8 @@
   	  return 1;
   	else if (agent.hasOwnProperty('length') && typeof agent.length == 'number')
   	  return agent.length;
-  	  
-		var cnt = 0;
-		for (var p in agent) {
-  		if (agent.hasOwnProperty(p))
-  		  ++cnt;
-    }
-    
-    return cnt;
+    else
+      return Object.keys(agent).length;
 	};
 	
 	asSys.id = function (skill) {
@@ -317,7 +319,7 @@
     }
     else {
       // The `vals` argument IS passed to the extractProps function.
-      var args = Array.prototype.slice.call(arguments, i);
+      var args = Array.prototype.slice.call(arguments, i - 1),
           prots = extractProps.apply(undefined, args.map(function (s, i) { return i > 0 ? s.prototype : true; })),
           cnt = 0, protcnt = 0;
       for (var p in prots) {
@@ -327,7 +329,7 @@
         ++protcnt;
       }
 
-      return all ? protcnt == cnt : cnt > 0;
+      return cnt > 0 && (all ? protcnt == cnt : true);
     }
 	};
 	

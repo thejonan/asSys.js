@@ -3,8 +3,11 @@ var vows = require("vows"),
     $$ = require("../"),
     suite = vows.describe("asSysJs");
 
-function Skill(a) { this.value = a; };
-Skill.prototype.show = function () { return this.value; }
+function SkillShow(a) { this.value = a; };
+SkillShow.prototype.show = function () { return this.value; }
+
+function SkillChange() { };
+SkillChange.prototype.change = function (a) { return this.value = a; }
 
 suite.addBatch({
   "asSys:": {
@@ -14,7 +17,7 @@ suite.addBatch({
     
     "Agent allocation": {
       "Primitive object": function () {
-        var o = $$("one", Skill);
+        var o = $$("one", SkillShow);
         assert.deepEqual(o, { value: "one" });
         assert.equal(o.show(), "one");
       },
@@ -22,8 +25,8 @@ suite.addBatch({
         
       },
       "Checking skills property": function () {
-        var o = $$("one", Skill);
-        assert.isTrue(o.__skills.Skill);
+        var o = $$("one", SkillShow);
+        assert.isTrue(o.__skills.SkillShow);
       }
     },
     
@@ -125,17 +128,55 @@ suite.addBatch({
       }
     },
     
-    "Agent capabilities checks": {
-      "Custom skill check": function () {
-        var aa = $$("one", Skill);
-        assert.isTrue($$.capable(aa, Skill));
-        
-      },
+    "Agent capabilities: ": {
       "An array capabilities check": function () {
-        assert.isFalse($$.capable([], Skill));
+        assert.isFalse($$.capable([], SkillShow));
       },
       "An array own capabilities check": function () {
         assert.isTrue($$.capable([], Array));
+      },
+      "Single skills capabilities": {
+        topic: $$("one", SkillShow),
+        "Custom skill check": function (aa) {
+          assert.isTrue($$.capable(aa, SkillShow));
+        },
+        "One skill check": function (aa) {
+          assert.isTrue($$.capable(aa, true, SkillShow));
+        },
+        "Two skills complete check": function (aa) {
+          assert.isFalse($$.capable(aa, true, SkillShow, SkillChange));
+        },
+        "Two skills partial check": function (aa) {
+          assert.isTrue($$.capable(aa, false, SkillShow, SkillChange));
+        },
+        "Awareness of methods": function (aa) {
+          assert.isTrue($$.can(aa, "show"));
+          assert.isFalse($$.can(aa, "change"));
+        }
+      },
+      "Dual skills capabilities": {
+        topic: $$("one", SkillShow, SkillChange),
+        "Separate skill check": function (aa) {
+          assert.isTrue($$.capable(aa, SkillShow));
+          assert.isTrue($$.capable(aa, SkillChange));
+        },
+        "All skills check": function (aa) {
+          assert.isTrue($$.capable(aa, true, SkillShow, SkillChange));
+        },
+        "Awareness of combined methods": function (aa) {
+          assert.isTrue($$.can(aa, "show"));
+          assert.isTrue($$.can(aa, "change"));
+        },
+        "Workability of skills": function (aa) {
+          aa.change("two");
+          assert.equal(aa.val(), "two");
+        }
+      },
+      "Complex skills capabilities": {
+        topic: $$("one", Array, SkillShow),
+        "Array existance check": function (aa) {
+          assert.isTrue($$.capable(aa, Array));
+        }
       }
     }
   }
