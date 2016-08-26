@@ -1,5 +1,5 @@
 {
-  "name": "theJonan/asSysJs",
+  "name": "theJonan/asSys.js",
   "description": "An Agent-Skills (i.e. Entity-Attribute) System JavaScript library.",
   "keywords": [
     "agent",
@@ -9,7 +9,7 @@
     "characteristics",
     "prototyping"
   ],
-  "homepage": "http://jonan.info/asSysJs/",
+  "homepage": "http://jonan.info/asSys.js/",
   "license": "MIT",
   "authors": [
     {
@@ -18,9 +18,9 @@
     }
   ],
   "support": {
-    "issues": "https://github.com/theJonan/asSysJs/issues",
-      "wiki": "https://github.com/theJonan/asSysJs/wiki",
-    "API": "https://github.com/theJonan/asSysJs/Reference",
-    "source": "https://github.com/theJonan/asSysJs"
+    "issues": "https://github.com/theJonan/asSys.js/issues",
+      "wiki": "https://github.com/theJonan/asSys.js/wiki",
+    "API": "https://github.com/theJonan/asSys.js/Reference",
+    "source": "https://github.com/theJonan/asSys.js"
   }
 }

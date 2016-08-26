@@ -1,25 +1,29 @@
 var vows = require("vows"),
     assert = require("./assert"),
     $$ = require("../"),
-    suite = vows.describe("asLib");
+    suite = vows.describe("asSysJs");
 
-var Skill = function (a) { this.value = a; };
-Skill.prototype.show = function () { return a.value; }
+function Skill(a) { this.value = a; };
+Skill.prototype.show = function () { return this.value; }
 
 suite.addBatch({
-  "asLib": {
+  "asSys:": {
     "is not a global when require’d": function() {
-      assert.equal("asLib" in global, false);
+      assert.equal("asSys" in global, false);
     },
     
     "Agent allocation": {
-      "Primitive object": function (Skill) {
+      "Primitive object": function () {
         var o = $$("one", Skill);
         assert.deepEqual(o, { value: "one" });
-        assert.isEqual(o.show(), "one");
+        assert.equal(o.show(), "one");
       },
       "Using native type": function () {
         
+      },
+      "Checking skills property": function () {
+        var o = $$("one", Skill);
+        assert.isTrue(o.__skills.Skill);
       }
     },
     
@@ -95,8 +99,11 @@ suite.addBatch({
       "Weight counting of an array": function () {
         assert.equal($$.weight([ 0, 1, 2]), 3);
       },
-      "Weight counting of primitive object": function () {
+      "Weight counting of a string": function () {
         assert.equal($$.weight("string"), 1);
+      },
+      "Weight counting of a number": function () {
+        assert.equal($$.weight(5), 1);
       },
       "Awareness for a property": function () {
         assert.isTrue($$.aware({ a: 1}, 'a'));

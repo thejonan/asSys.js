@@ -7,15 +7,13 @@
     }
     return props;
   };
-  var mergeObjects = function(deep, newonly, objects) {
+  var mergeObjects = function(deep, newonly, i, objects) {
     if (!deep && !newonly && typeof Object.assign === "function") {
-      while (objects[0] == null) {
-        if (!Array.isArray(objects)) objects = Array.prototype.slice.call(objects, 1); else objects.shift();
-      }
-      return Object.assign.apply(Object, objects);
+      for (;objects[i] == null; ++i) ;
+      return Object.assign.apply(Object, i == 0 ? objects : Array.prototype.slice.call(objects, i));
     }
-    var obj = objects[0], t, o, p;
-    for (var i = 1, ol = objects.length; i < ol; ++i) {
+    var obj = objects[i], t, o, p, ol = objects.length;
+    while (++i < ol) {
       o = objects[i];
       if (obj == null) {
         obj = o;
@@ -26,15 +24,15 @@
         if (newonly && obj.hasOwnProperty(p)) continue;
         if (!deep || typeof o[p] !== "object") obj[p] = o[p]; else {
           t = typeof obj[p] === "object" ? obj[p] : {};
-          obj[p] = mergeObjects(deep, newonly, [ t, o[p] ]);
+          obj[p] = mergeObjects(deep, newonly, 0, [ t, o[p] ]);
         }
       }
     }
     return obj;
   };
-  var twinScan = function(arr, callback) {
+  var twinScan = function(arr, start, callback) {
     var ai, j;
-    for (var i = 0, al = arr.length; i < al; ++i) {
+    for (var i = start, al = arr.length; i < al; ++i) {
       ai = arr[i];
       for (j = i + 1; j < al; ++j) {
         if (!callback(ai, arr[j])) return false;
@@ -56,7 +54,6 @@
     for (var i = 0, a; i < skills.length; ++i) {
       a = skills[i];
       if (typeof a === "function") {
-        if (!reset && args.length === 1) args = args[0];
         reset = true;
         if (a.__expects != null) {
           missing = [ i, 0 ];
@@ -70,8 +67,9 @@
             continue;
           }
         }
-        obj = mergeObjects(false, true, [ obj, new a(args) ]);
         skillmap[fnName(a)] = true;
+        if (obj == null) obj = Object.create(a.prototype); else mergeObjects(false, true, 0, [ obj.prototype, a.prototype ]);
+        a.apply(obj, args);
       } else {
         if (reset) {
           args = [];
@@ -80,14 +78,20 @@
         args.push(a);
       }
     }
-    if (obj != null) obj.__skills = skillmap;
+    Object.defineProperties(obj, {
+      __skills: {
+        enumerable: false,
+        writable: false,
+        value: skillmap
+      }
+    });
     return obj;
   };
   asSys.version = "0.0.0";
   asSys.equal = function(deepCompare) {
-    var deep = deepCompare, args = arguments;
-    if (typeof deep !== "boolean") deep = false; else args = Array.prototype.slice.call(arguments, 1);
-    return twinScan(args, function(ai, aj) {
+    var deep = deepCompare, start = 0;
+    if (typeof deep !== "boolean") deep = false; else start = 1;
+    return twinScan(arguments, start, function(ai, aj) {
       for (var p in extractProps(false, ai, aj)) {
         if (deep && typeof ai[p] === "object" && typeof aj[p] === "object" && !asSys.equal(deep, ai[p], aj[p])) return false; else if (ai[p] !== aj[p]) return false;
       }
@@ -95,9 +99,9 @@
     });
   };
   asSys.similar = function(deepCompare) {
-    var deep = deepCompare, args = arguments;
-    if (typeof deep !== "boolean") deep = false; else args = Array.prototype.slice.call(arguments, 1);
-    return twinScan(args, function(ai, aj) {
+    var deep = deepCompare, start = 0;
+    if (typeof deep !== "boolean") deep = false; else start = 1;
+    return twinScan(arguments, start, function(ai, aj) {
       for (var p in ai) {
         if (deep && typeof ai[p] === "object" && typeof aj[p] === "object" && !asSys.similar(deep, ai[p], aj[p])) return false; else if (aj[p] !== undefined && ai[p] !== aj[p]) return false;
       }
@@ -105,14 +109,14 @@
     });
   };
   asSys.extend = function(deep) {
-    var d = deep, objects = arguments;
-    if (typeof d !== "boolean") d = false; else objects = Array.prototype.slice.call(arguments, 1);
-    return mergeObjects(d, false, objects);
+    var d = deep, start = 0;
+    if (typeof d !== "boolean") d = false; else start = 1;
+    return mergeObjects(d, false, start, arguments);
   };
   asSys.enhance = function(deep) {
-    var d = deep, objects = arguments;
-    if (typeof d !== "boolean") d = false; else objects = Array.prototype.slice.call(arguments, 1);
-    return mergeObjects(d, true, objects);
+    var d = deep, start = 0;
+    if (typeof d !== "boolean") d = false; else start = 1;
+    return mergeObjects(d, true, start, arguments);
   };
   asSys.filter = function(agent, selector) {
     if (typeof agent.filter === "function") return agent.filter(selector);
@@ -128,7 +132,7 @@
     }
   };
   asSys.weight = function(agent) {
-    if (agent.hasOwnProperty("length") && typeof agent.length == "number") return agent.length;
+    if (typeof agent !== "object") return 1; else if (agent.hasOwnProperty("length") && typeof agent.length == "number") return agent.length;
     var cnt = 0;
     for (var p in agent) {
       if (agent.hasOwnProperty(p)) ++cnt;
@@ -140,7 +144,7 @@
   };
   asSys.mimic = function(agent) {
     var obj = {};
-    mergeObjects(false, true, obj, asSys.filter(agent, fnOnly));
+    mergeObjects(false, true, 0, [ obj ].concat(asSys.filter(agent, fnOnly)));
     return obj;
   };
   asSys.act = function(self, skill, activity) {
@@ -154,18 +158,16 @@
     return typeof agent === "object" && agent[prop] !== undefined;
   };
   asSys.capable = function(agent, allskills) {
-    var all = allskills, args;
-    if (typeof all !== "boolean") {
-      all = false;
-      args = Array.prototype.slice.call(arguments, 0);
-    } else args = Array.prototype.slice.call(arguments, 1);
+    var all = allskills, i = 1;
+    if (typeof all !== "boolean") all = true; else i = 2;
     if (agent.__skills !== undefined) {
-      for (var cnt = 0, i = 0, al = args.length; i < al; ++i) {
-        if (agent.__skills[fnName(args[i])]) ++cnt;
+      for (var cnt = 0, start = i, al = arguments.length; i < al; ++i) {
+        if (agent.__skills[fnName(arguments[i])]) ++cnt;
       }
-      return all ? cnt == args.length : cnt > 0;
+      return all ? cnt == arguments.length - start : cnt > 0;
     } else {
-      var prots = extractProps.apply(undefined, args.map(function(s, i) {
+      var args = Array.prototype.slice.call(arguments, i);
+      prots = extractProps.apply(undefined, args.map(function(s, i) {
         return i > 0 ? s.prototype : true;
       })), cnt = 0, protcnt = 0;
       for (var p in prots) {
@@ -185,7 +187,7 @@
     for (var k in pool) {
       var e = pool[k];
       if (!selector.call(e, e, k, pool)) continue;
-      if (full) mergeObjects(false, true, [ protos, extractProps(true, asSys.filter(e, fnOnly)) ]);
+      if (full) mergeObjects(false, true, 0, [ protos, extractProps(true, asSys.filter(e, fnOnly)) ]);
       res.push(e);
     }
     if (full) {
