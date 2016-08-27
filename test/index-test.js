@@ -221,6 +221,18 @@ suite.addBatch({
         for (var p in g)
           assert.equal(g[p].value, "our");
       }
+    },
+    
+    "Overlapping skills": {
+      topic: a$(SkillShow, "one"),
+      "Simple act on an agent": function (a) {
+        assert.equal(a$.act(a, SkillShow, 'show'), "one");
+      },
+      "Constructor act on an agent": function (a) {
+        a$.act(a, SkillShow, "two");
+        assert.equal(a.show(), "two");
+      }
+      
     }
   }
 });

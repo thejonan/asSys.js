@@ -154,8 +154,9 @@
     var o = Object.create(Object.getPrototypeOf(agent));
     return agent.constructor.apply(o, Array.prototype.slice(arguments, 1)) || o;
   };
-  asSys.act = function(self, skill, activity) {
-    return skill.prototype[activity].apply(self, Array.prototype.slice.call(arguments, 3));
+  asSys.act = function(agent, skill, activity) {
+    var act = skill.prototype[activity];
+    return (act || skill).apply(agent, Array.prototype.slice.call(arguments, act !== undefined ? 3 : 2));
   };
   asSys.can = function(agent, activity) {
     return typeof agent === "object" && agent[activity] != null && typeof agent[activity] === "function";

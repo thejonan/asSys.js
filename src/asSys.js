@@ -289,8 +289,9 @@
 	/** Performs a specific method from a given skill, onto the object
   	* Complexity: o(1)
   	*/
-	asSys.act = function (self, skill, activity /*, arguments */) {
-		return skill.prototype[activity].apply(self, Array.prototype.slice.call(arguments, 3));
+	asSys.act = function (agent, skill, activity /*, arguments */) {
+  	var act = skill.prototype[activity];
+		return (act || skill).apply(agent, Array.prototype.slice.call(arguments, act !== undefined ? 3 : 2));
 	};
 		
   /** Tells whether given agent can perform specific activity.
