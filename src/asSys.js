@@ -214,7 +214,7 @@
     *
     * Complexity: o(<number of properties> * <number of objects>).
     */
-	asSys.enhance = function (deep /*, objects */) {
+	asSys.mixin = function (deep /*, objects */) {
   	var d = deep,
   	    start = 0;
 		if (typeof d !== 'boolean')
@@ -349,7 +349,7 @@
     }
     
 		var res = this.mimic(pool),
-				protos = {}, e;
+				skills = {}, e;
 				
 		for (var k in pool) {
 			var e = pool[k];
@@ -358,7 +358,7 @@
 			
 			// Get this done, only if we're interested to use it afterwards...
 			if (full)
-			  mergeObjects(false, true, 0, [ protos, extractProps(true, asSys.filter(e, fnOnly)) ]);
+			  mergeObjects(false, false, 0, [ skills, extractProps(true, asSys.filter(e.prototype, fnOnly)) ]);
 			  
 			res.push(e);
 		}

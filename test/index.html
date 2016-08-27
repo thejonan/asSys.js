@@ -15,6 +15,10 @@
   function SkillChange() { return []; };
   SkillChange.prototype.change = function (v) { return this.skill = v; };
   
+  var aa = $$(SkillShow, "one"),
+      bb = $$(SkillChange),
+      cc = $$(SkillShow, SkillChange, "me");
+  
 </script>
 </head>
 <html>

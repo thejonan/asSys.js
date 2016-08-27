@@ -51,22 +51,22 @@ suite.addBatch({
         assert.deepEqual($$.extend(true, {_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bc: 7} } ), {_: "", a: 3, b: {ba: 5, bb: 6, bc: 7}, c: 4});
       },
       "Enhance with two objects": function () {
-        assert.deepEqual($$.enhance({}, {a: 1, b: 2}, { a: 3, c: 4}), {a: 1, b: 2, c: 4});
+          assert.deepEqual($$.mixin({}, {a: 1, b: 2}, { a: 3, c: 4}), {a: 1, b: 2, c: 4});
       },
       "Enhance with three objects": function () {
-        assert.deepEqual($$.enhance({}, {a: 1, b: 2}, { a: 3}), {a: 1, b: 2});
+        assert.deepEqual($$.mixin({}, {a: 1, b: 2}, { a: 3}), {a: 1, b: 2});
       },
       "Enhance with deep object": function () {
-        assert.deepEqual($$.enhance({}, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4}), {a: 1, b: {ba: 5, bb: 6}, c: 4});
+        assert.deepEqual($$.mixin({}, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4}), {a: 1, b: {ba: 5, bb: 6}, c: 4});
       },
       "Enhance a non-empty object": function () {
-        assert.deepEqual($$.enhance({_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4}), {_: "", a: 1, b: {ba: 5, bb: 6}, c: 4});
+        assert.deepEqual($$.mixin({_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4}), {_: "", a: 1, b: {ba: 5, bb: 6}, c: 4});
       },
       "Enhance a non-empty with deeper object": function () {
-        assert.deepEqual($$.enhance({_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bb: 6, bc: 7} } ), {_: "", a: 1, b: {ba: 5, bb: 6}, c: 4});
+        assert.deepEqual($$.mixin({_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bb: 6, bc: 7} } ), {_: "", a: 1, b: {ba: 5, bb: 6}, c: 4});
       },
       "Enhance deep": function () {
-        assert.deepEqual($$.enhance(true, {_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bc: 7} } ), {_: "", a: 1, b: {ba: 5, bb: 6}, c: 4});
+        assert.deepEqual($$.mixin(true, {_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bc: 7} } ), {_: "", a: 1, b: {ba: 5, bb: 6}, c: 4});
       }
     },
     
@@ -176,6 +176,15 @@ suite.addBatch({
         "Array existance check": function (aa) {
           assert.isTrue($$.capable(aa, Array));
         }
+      }
+    },
+    "Agents grouping": {
+      topic: [ $$(SkillShow, "one"), $$(SkillChange), $$(SkillShow, SkillChange, "me") ],
+      "Select skilled agensts": function (pool) {
+        assert.equal($$.group(pool, function (a) { return $$.capable(a, SkillShow); }).length, 2);
+      },
+      "Invoke skilled agensts": function (pool) {
+        assert.equal($$.group(pool, function (a) { return $$.capable(a, SkillShow); }).length, 2);
       }
     }
   }

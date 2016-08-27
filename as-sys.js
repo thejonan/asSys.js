@@ -86,7 +86,7 @@
     }
     return obj;
   };
-  asSys.version = "{{VERSION}}";
+  asSys.version = "1.0.0";
   asSys.init = function(agent) {
     var args = Array.prototype.slice.call(arguments, 1);
     if (agent.__skills === undefined) return agent.prototype.apply(agent, args) || agent;
@@ -122,7 +122,7 @@
     if (typeof d !== "boolean") d = false; else start = 1;
     return mergeObjects(d, false, start, arguments);
   };
-  asSys.enhance = function(deep) {
+  asSys.mixin = function(deep) {
     var d = deep, start = 0;
     if (typeof d !== "boolean") d = false; else start = 1;
     return mergeObjects(d, true, start, arguments);
@@ -183,11 +183,11 @@
       pool = full;
       full = false;
     }
-    var res = this.mimic(pool), protos = {}, e;
+    var res = this.mimic(pool), skills = {}, e;
     for (var k in pool) {
       var e = pool[k];
       if (!selector.call(e, e, k, pool)) continue;
-      if (full) mergeObjects(false, true, 0, [ protos, extractProps(true, asSys.filter(e, fnOnly)) ]);
+      if (full) mergeObjects(false, false, 0, [ skills, extractProps(true, asSys.filter(e.prototype, fnOnly)) ]);
       res.push(e);
     }
     if (full) {
