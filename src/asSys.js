@@ -65,19 +65,15 @@
       return s != null ? s[1] : "";
     }
   };
-  
-  var fnOnly = function (key, agent) {
-    return agent && typeof agent[key] === 'function';
-  };
-  
+    
   /** Create a new agent, with given set of skills: skill1, skill2, ..., skillN
     *
     * Complexity: o(<required skills>)
     */
 	var asSys = function () {
-  	var cls = function () {},
+  	var A = function () {},
   	    skillmap = { },
-  	    missing, obj,
+  	    missing, obj, nm,
   	    args = [],
   	    skills = Array.prototype.slice.call(arguments, 0);
   	    
@@ -87,12 +83,16 @@
     	
     	// We've come to a skill reference
     	if (typeof a === 'function') {
+      	nm = fnName(a);
+      	if (skillmap[nm] !== undefined)
+      	  continue;
+      	  
       	// If it has dependencies
-      	if (a.__expects != null) {
+      	if (a.prototype.__expects != null) {
         	missing = [i, 0];
-        	for (var s, j = 0, el = a.__expects.length; j < el; ++j) {
-            s = a.__expects[j];
-            if (skillmap[s] !== undefined)
+        	for (var s, j = 0, el = a.prototype.__expects.length; j < el; ++j) {
+            s = a.prototype.__expects[j];
+            if (skills.indexOf(s) == -1)
               missing.push(s);
           }
           
@@ -107,18 +107,18 @@
         
         // Ok, we don't have expectations that are not met - merge the prototypes
         // Invoke the initialization for it and add this skill to agent's.
-      	skillmap[fnName(a)] = a;
-      	if (cls.prototype === undefined)
-      	  cls.prototype = Object.create(a.prototype);
+      	skillmap[nm] = a;
+      	if (A.prototype === undefined)
+      	  A.prototype = Object.create(a.prototype);
         else
-          mergeObjects(true, false, 0, [ cls.prototype, a.prototype ])
+          mergeObjects(true, false, 0, [ A.prototype, a.prototype ])
       }
       else
         args.push(a);
     }
     
-    Object.defineProperties(cls.prototype, { __skills: { enumerable: false, writable: false, value: skillmap } });
-    obj = new cls();
+    Object.defineProperties(A.prototype, { __skills: { enumerable: false, writable: false, value: skillmap } });
+    obj = new A();
     if (args.length > 0) {
       args.unshift(obj);
       asSys.init.apply(this, args);
@@ -136,7 +136,7 @@
 	asSys.init = function (agent) {
   	var args = Array.prototype.slice.call(arguments, 1);
   	if (agent.__skills === undefined)
-      return agent.prototype.apply(agent, args) || agent;
+      return agent.constructor.apply(agent, args) || agent;
       
     var skills = Object.keys(agent.__skills), s;
     for (var i = 0, sl = skills.length; i < sl; ++i) {
@@ -275,7 +275,7 @@
 	};
 	
 	asSys.id = function (skill) {
-  	return fnName(skill);
+  	return typeof skill === 'function' ? fnName(skill) : skill.toString();
 	};
 	
 	/** Copies all the skills from the given agent, into a new, blank one,
@@ -283,11 +283,7 @@
   	*/
 	asSys.mimic = function (agent) {
   	var o = Object.create(Object.getPrototypeOf(agent));
-  	if (arguments.length > 1) {
-    	agent = o;
-  	  asSys.init.apply(this, arguments);
-    }
-		return o;
+  	return agent.constructor.apply(o, Array.prototype.slice(arguments, 1)) || o;
 	};
 	
 	/** Performs a specific method from a given skill, onto the object
@@ -325,9 +321,9 @@
 
     for (var cnt = 0, start = i, al = arguments.length; i < al; ++i) {
       s = arguments[i];
-      if (agent.__skills !== undefined && agent.__skills[fnName(s)])
+      if (agent.__skills !== undefined && agent.__skills[fnName(s)] !== undefined)
         ++cnt;
-      else if (s.prototype.isPrototypeOf(agent))
+      else if (agent instanceof s)
         ++cnt;
     }
 
@@ -341,15 +337,13 @@
   	*
   	* Complexity: o(<number of agents in the pool> * (<complexity of selector> + <number of properties>))
   	*/
-	asSys.group = function (full, pool, selector) {
+	asSys.group = function (pool, full, selector) {
 		if (typeof full !== 'boolean') {
-  		selector = pool;
-  		pool = full;
+  		selector = full;
   		full = false;
     }
     
-		var res = this.mimic(pool),
-				skills = {}, e;
+		var res = this.mimic(pool), skills = {}, e;
 				
 		for (var k in pool) {
 			var e = pool[k];
@@ -358,7 +352,7 @@
 			
 			// Get this done, only if we're interested to use it afterwards...
 			if (full)
-			  mergeObjects(false, false, 0, [ skills, extractProps(true, asSys.filter(e.prototype, fnOnly)) ]);
+			  mergeObjects(false, false, 0, [ skills, extractProps(true, Object.getPrototypeOf(e)) ]);
 			  
 			res.push(e);
 		}
@@ -366,20 +360,26 @@
     if (full) {
       // Now make the pool itself performs the skills that are present in the
       // containing objects, by creating new functions
-      for (var p in protos) {
-        if (typeof protos[p] !== 'function')
-          continue;
-          
-        res[p] = (function (key) { 
-          return function () {
-            for (var i in this) {
-              var o = this[i];
-              if (typeof o[key] === 'function')
-                o[key].apply(o, arguments);
+      var sks = Object.keys(skills), p, props = {};
+      for (var i = 0, sl = sks.length; i < sl; ++i) {
+        p = sks[i];
+        props[p] = { enumerable: false, writable: false, value:typeof skills[p] !== 'function' ? 
+          skills[p] : 
+          (function (key) { 
+            return function () {
+              var r = undefined;
+              for (var i in this) {
+                var o = this[i];
+                if (typeof o[key] === 'function')
+                  r = o[key].apply(o, arguments);
+              }
+              
+              return r;
             }
-          }
-        })(p);
+          })(p) };
       }
+      
+      Object.defineProperties(res, props);
     }
     
 		return res;
@@ -390,7 +390,7 @@
   if ( typeof module === "object" && module && typeof module.exports === "object" )
   	module.exports = asSys;
   else {
-    this.asSys = this.$$ = asSys;
+    this.asSys = this.a$ = asSys;
     if ( typeof define === "function" && define.amd )
       define(asSys);
   }

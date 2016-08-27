@@ -48,19 +48,18 @@
       return s != null ? s[1] : "";
     }
   };
-  var fnOnly = function(key, agent) {
-    return agent && typeof agent[key] === "function";
-  };
   var asSys = function() {
-    var cls = function() {}, skillmap = {}, missing, obj, args = [], skills = Array.prototype.slice.call(arguments, 0);
+    var A = function() {}, skillmap = {}, missing, obj, nm, args = [], skills = Array.prototype.slice.call(arguments, 0);
     for (var i = 0, a; i < skills.length; ++i) {
       a = skills[i];
       if (typeof a === "function") {
-        if (a.__expects != null) {
+        nm = fnName(a);
+        if (skillmap[nm] !== undefined) continue;
+        if (a.prototype.__expects != null) {
           missing = [ i, 0 ];
-          for (var s, j = 0, el = a.__expects.length; j < el; ++j) {
-            s = a.__expects[j];
-            if (skillmap[s] !== undefined) missing.push(s);
+          for (var s, j = 0, el = a.prototype.__expects.length; j < el; ++j) {
+            s = a.prototype.__expects[j];
+            if (skills.indexOf(s) == -1) missing.push(s);
           }
           if (missing.length > 2) {
             Array.prototype.splice.apply(skills, missing);
@@ -68,28 +67,28 @@
             continue;
           }
         }
-        skillmap[fnName(a)] = a;
-        if (cls.prototype === undefined) cls.prototype = Object.create(a.prototype); else mergeObjects(true, false, 0, [ cls.prototype, a.prototype ]);
+        skillmap[nm] = a;
+        if (A.prototype === undefined) A.prototype = Object.create(a.prototype); else mergeObjects(true, false, 0, [ A.prototype, a.prototype ]);
       } else args.push(a);
     }
-    Object.defineProperties(cls.prototype, {
+    Object.defineProperties(A.prototype, {
       __skills: {
         enumerable: false,
         writable: false,
         value: skillmap
       }
     });
-    obj = new cls();
+    obj = new A();
     if (args.length > 0) {
       args.unshift(obj);
       asSys.init.apply(this, args);
     }
     return obj;
   };
-  asSys.version = "1.0.0";
+  asSys.version = "0.9.0";
   asSys.init = function(agent) {
     var args = Array.prototype.slice.call(arguments, 1);
-    if (agent.__skills === undefined) return agent.prototype.apply(agent, args) || agent;
+    if (agent.__skills === undefined) return agent.constructor.apply(agent, args) || agent;
     var skills = Object.keys(agent.__skills), s;
     for (var i = 0, sl = skills.length; i < sl; ++i) {
       s = agent.__skills[skills[i]];
@@ -149,15 +148,11 @@
     if (typeof agent !== "object") return 1; else if (agent.hasOwnProperty("length") && typeof agent.length == "number") return agent.length; else return Object.keys(agent).length;
   };
   asSys.id = function(skill) {
-    return fnName(skill);
+    return typeof skill === "function" ? fnName(skill) : skill.toString();
   };
   asSys.mimic = function(agent) {
     var o = Object.create(Object.getPrototypeOf(agent));
-    if (arguments.length > 1) {
-      agent = o;
-      asSys.init.apply(this, arguments);
-    }
-    return o;
+    return agent.constructor.apply(o, Array.prototype.slice(arguments, 1)) || o;
   };
   asSys.act = function(self, skill, activity) {
     return skill.prototype[activity].apply(self, Array.prototype.slice.call(arguments, 3));
@@ -173,40 +168,47 @@
     if (typeof all !== "boolean") all = true; else i = 2;
     for (var cnt = 0, start = i, al = arguments.length; i < al; ++i) {
       s = arguments[i];
-      if (agent.__skills !== undefined && agent.__skills[fnName(s)]) ++cnt; else if (s.prototype.isPrototypeOf(agent)) ++cnt;
+      if (agent.__skills !== undefined && agent.__skills[fnName(s)] !== undefined) ++cnt; else if (agent instanceof s) ++cnt;
     }
     return cnt > 0 && (all ? arguments.length - start == cnt : true);
   };
-  asSys.group = function(full, pool, selector) {
+  asSys.group = function(pool, full, selector) {
     if (typeof full !== "boolean") {
-      selector = pool;
-      pool = full;
+      selector = full;
       full = false;
     }
     var res = this.mimic(pool), skills = {}, e;
     for (var k in pool) {
       var e = pool[k];
       if (!selector.call(e, e, k, pool)) continue;
-      if (full) mergeObjects(false, false, 0, [ skills, extractProps(true, asSys.filter(e.prototype, fnOnly)) ]);
+      if (full) mergeObjects(false, false, 0, [ skills, extractProps(true, Object.getPrototypeOf(e)) ]);
       res.push(e);
     }
     if (full) {
-      for (var p in protos) {
-        if (typeof protos[p] !== "function") continue;
-        res[p] = function(key) {
-          return function() {
-            for (var i in this) {
-              var o = this[i];
-              if (typeof o[key] === "function") o[key].apply(o, arguments);
-            }
-          };
-        }(p);
+      var sks = Object.keys(skills), p, props = {};
+      for (var i = 0, sl = sks.length; i < sl; ++i) {
+        p = sks[i];
+        props[p] = {
+          enumerable: false,
+          writable: false,
+          value: typeof skills[p] !== "function" ? skills[p] : function(key) {
+            return function() {
+              var r = undefined;
+              for (var i in this) {
+                var o = this[i];
+                if (typeof o[key] === "function") r = o[key].apply(o, arguments);
+              }
+              return r;
+            };
+          }(p)
+        };
       }
+      Object.defineProperties(res, props);
     }
     return res;
   };
   if (typeof module === "object" && module && typeof module.exports === "object") module.exports = asSys; else {
-    this.asSys = this.$$ = asSys;
+    this.asSys = this.a$ = asSys;
     if (typeof define === "function" && define.amd) define(asSys);
   }
 })();

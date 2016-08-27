@@ -8,16 +8,22 @@
 
 <head>
 <script src="../src/asSys.js"></script>
-<script lang="JavaScript">
-  function SkillShow(a) { this.skill = a; };
-  SkillShow.prototype.show = function () { return this.skill; };
 
-  function SkillChange() { return []; };
-  SkillChange.prototype.change = function (v) { return this.skill = v; };
+<script lang="JavaScript">
+  function SkillShow(a) { this.value = a; };
+  SkillShow.prototype.show = function () { return this.value; }
   
-  var aa = $$(SkillShow, "one"),
-      bb = $$(SkillChange),
-      cc = $$(SkillShow, SkillChange, "me");
+  function SkillChange() { };
+  SkillChange.prototype.change = function (a) { this.value = a; }
+  
+  function SkillCombined() { };
+  SkillCombined.prototype.__expects = [ SkillShow, SkillChange ];
+  SkillCombined.prototype.combine = function (a, b) { this.value = a + b; }
+  
+  var aa = a$(SkillShow, "one"),
+      bb = a$(SkillChange),
+      cc = a$(SkillShow, SkillChange, "me"),
+      pool = [ aa, bb, cc ];
   
 </script>
 </head>
