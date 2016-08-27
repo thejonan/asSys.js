@@ -1,4 +1,4 @@
-# asSys - *A* *S*imple, *A*gent-*S*kills System
+# asSys - **A** **S**imple, **A**gent-**S**kills System
 ### General purpose Entity-Attribute System implementation in JavaScript.
 
 
