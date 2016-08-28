@@ -121,7 +121,7 @@ suite.addBatch({
         assert.isTrue(a$.match("Another test string", /test/));
       },
       "Matching unmatchable": function () {
-        assert.isTrue(a$.match(/test/, "Without it"));
+        assert.isFalse(a$.match(/test/, "Without it"));
       },
       "Matching objects": function () {
         assert.isTrue(a$.match({ a: 1, b: 2}, { a: 1, b: 2, c: 3} ));
@@ -238,7 +238,7 @@ suite.addBatch({
     "Overlapping skills": {
       topic: a$(SkillShow, "one"),
       "Simple act on an agent": function (a) {
-        assert.equal(a$.act(a, SkillShow, 'show'), "one");
+        assert.equal(a$.act(a, SkillShow.prototype.show), "one");
       },
       "Constructor act on an agent": function (a) {
         a$.act(a, SkillShow, "two");

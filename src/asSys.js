@@ -138,7 +138,7 @@
   	if (agent.__skills === undefined)
       return agent.constructor.apply(agent, args) || agent;
       
-    a$.each(agent.__skills, function (s) { s.apply(agent, args); });
+    asSys.each(agent.__skills, function (s) { s.apply(agent, args); });
     
     return agent;
 	};
@@ -194,11 +194,11 @@
   	*/
 	asSys.match = function (a, b) {
     if (typeof a === 'object' && typeof b === 'object')
-      return a$.similar(a, b);
+      return asSys.similar(a, b);
     else if (a instanceof RegExp && typeof b === 'string')
-      return b.match(a);
+      return b.match(a) != null;
     else if (b instanceof RegExp && typeof a === 'string')
-      return a.match(b);
+      return a.match(b) != null;
     else
       return a == b;
 	};
@@ -261,7 +261,7 @@
   	if (typeof agent.forEach ==='function')
     	agent.forEach(actor);
     else {
-      var k = Object.keys(p), p;
+      var k = Object.keys(agent), p;
       for (var i = 0, kl = k.length; i < kl; ++i) {
         p = k[i];
         actor(agent[p], p, agent);
@@ -299,7 +299,7 @@
   	* Complexity: o(1)
   	*/
 	asSys.act = function (agent, activity /*, arguments */) {
-  	if (agent != null && typeof === 'function') {
+  	if (agent != null && typeof activity === 'function') {
   		return activity.apply(agent, Array.prototype.slice.call(arguments, 2));
   	}
 	};
@@ -310,7 +310,7 @@
 	asSys.broadcast = function (agent, activity /*, arguments */) {
   	var args = Array.prototype.slice.call(arguments, 2);
       
-    a$.each(agent.__skills, function (s) { s.prototype[activity].apply(agent, args); });
+    asSys.each(agent.__skills, function (s) { s.prototype[activity].apply(agent, args); });
     return agent;
 	};
 		
