@@ -65,7 +65,7 @@
       return s != null ? s[1] : "";
     }
   };
-    
+  
   /** Create a new agent, with given set of skills: skill1, skill2, ..., skillN
     *
     * Complexity: o(<required skills>)
@@ -138,11 +138,7 @@
   	if (agent.__skills === undefined)
       return agent.constructor.apply(agent, args) || agent;
       
-    var skills = Object.keys(agent.__skills), s;
-    for (var i = 0, sl = skills.length; i < sl; ++i) {
-      s = agent.__skills[skills[i]];
-      s.apply(agent, args);
-    }
+    a$.each(agent.__skills, function (s) { s.apply(agent, args); });
     
     return agent;
 	};
@@ -186,12 +182,25 @@
 		  for (var p in ai) {
   		  if (deep && typeof ai[p] === 'object' && typeof aj[p] === 'object' && !asSys.similar(deep, ai[p], aj[p]))
   		    return false;
-        else if (aj[p] !== undefined && ai[p] !== aj[p])
+        else if (aj[p] !== undefined && ai[p] != aj[p])
 			    return false;
 		  }
 		  
 		  return true;
     });
+	};
+	
+	/** Compare two general values - regexp / string / object, etc.
+  	*/
+	asSys.match = function (a, b) {
+    if (typeof a === 'object' && typeof b === 'object')
+      return a$.similar(a, b);
+    else if (a instanceof RegExp && typeof b === 'string')
+      return b.match(a);
+    else if (b instanceof RegExp && typeof a === 'string')
+      return a.match(b);
+    else
+      return a == b;
 	};
 	
   /** Merges all the properties from given objects into the first one.
@@ -286,12 +295,23 @@
   	return agent.constructor.apply(o, Array.prototype.slice(arguments, 1)) || o;
 	};
 	
-	/** Performs a specific method from a given skill, onto the object
+	/** Performs a specific method from a skill, onto the given agent.
   	* Complexity: o(1)
   	*/
-	asSys.act = function (agent, skill, activity /*, arguments */) {
-  	var act = skill.prototype[activity];
-		return (act || skill).apply(agent, Array.prototype.slice.call(arguments, act !== undefined ? 3 : 2));
+	asSys.act = function (agent, activity /*, arguments */) {
+  	if (agent != null && typeof === 'function') {
+  		return activity.apply(agent, Array.prototype.slice.call(arguments, 2));
+  	}
+	};
+
+	/** Invokes same activity on all skills of the agent.
+  	* Complexity: o(1)
+  	*/
+	asSys.broadcast = function (agent, activity /*, arguments */) {
+  	var args = Array.prototype.slice.call(arguments, 2);
+      
+    a$.each(agent.__skills, function (s) { s.prototype[activity].apply(agent, args); });
+    return agent;
 	};
 		
   /** Tells whether given agent can perform specific activity.

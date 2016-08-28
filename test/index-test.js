@@ -54,7 +54,7 @@ suite.addBatch({
       }
     },
     
-    "Extending and enhancing": {
+    "Extending and mixing": {
       "Extend empty object": function () {
         assert.deepEqual(a$.extend({}, {a: 1, b: 2}), { a: 1, b: 2});
       },
@@ -75,22 +75,22 @@ suite.addBatch({
       "Extend deep": function () {
         assert.deepEqual(a$.extend(true, {_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bc: 7} } ), {_: "", a: 3, b: {ba: 5, bb: 6, bc: 7}, c: 4});
       },
-      "Enhance with two objects": function () {
+      "Mixing with two objects": function () {
           assert.deepEqual(a$.mixin({}, {a: 1, b: 2}, { a: 3, c: 4}), {a: 1, b: 2, c: 4});
       },
-      "Enhance with three objects": function () {
+      "Mixing with three objects": function () {
         assert.deepEqual(a$.mixin({}, {a: 1, b: 2}, { a: 3}), {a: 1, b: 2});
       },
-      "Enhance with deep object": function () {
+      "Mixing with deep object": function () {
         assert.deepEqual(a$.mixin({}, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4}), {a: 1, b: {ba: 5, bb: 6}, c: 4});
       },
-      "Enhance a non-empty object": function () {
+      "Mixing a non-empty object": function () {
         assert.deepEqual(a$.mixin({_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4}), {_: "", a: 1, b: {ba: 5, bb: 6}, c: 4});
       },
-      "Enhance a non-empty with deeper object": function () {
+      "Mixing a non-empty with deeper object": function () {
         assert.deepEqual(a$.mixin({_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bb: 6, bc: 7} } ), {_: "", a: 1, b: {ba: 5, bb: 6}, c: 4});
       },
-      "Enhance deep": function () {
+      "Mixing deep": function () {
         assert.deepEqual(a$.mixin(true, {_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bc: 7} } ), {_: "", a: 1, b: {ba: 5, bb: 6}, c: 4});
       }
     },
@@ -113,6 +113,18 @@ suite.addBatch({
       },
       "Similarity for object with different value for same property": function () {
         assert.isFalse(a$.similar({ a: 1, b: 2}, { a: 1, b: 3, c: 3} ));
+      },
+      "Matching number of its string": function () {
+        assert.isTrue(a$.match(1, "1"));
+      },
+      "Matching with regexp": function () {
+        assert.isTrue(a$.match("Another test string", /test/));
+      },
+      "Matching unmatchable": function () {
+        assert.isTrue(a$.match(/test/, "Without it"));
+      },
+      "Matching objects": function () {
+        assert.isTrue(a$.match({ a: 1, b: 2}, { a: 1, b: 2, c: 3} ));
       }
     },
     
