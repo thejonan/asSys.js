@@ -81,8 +81,8 @@
   	for (var i = 0, a; i < skills.length; ++i) {
     	a = skills[i];
     	
-    	// We've come to a skill reference
-    	if (typeof a === 'function') {
+    	// We've come to a skill reference.
+    	if (typeof a === 'function' && a.prototype !== undefined) {
       	nm = fnName(a);
       	if (skillmap[nm] !== undefined)
       	  continue;
