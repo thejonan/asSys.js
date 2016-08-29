@@ -15,10 +15,12 @@
   
   function SkillChange() { };
   SkillChange.prototype.change = function (a) { this.value = a; }
+  SkillChange.prototype.step = function (s) { this.value += s; }
   
   function SkillCombined() { };
   SkillCombined.prototype.__expects = [ SkillShow, SkillChange ];
   SkillCombined.prototype.combine = function (a, b) { this.value = a + b; }
+  SkillCombined.prototype.step = function (s) { this.value += s * s; }
   
   var SA = a$(SkillShow),
       SC = a$(SkillShow, SkillChange);

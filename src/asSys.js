@@ -1,14 +1,12 @@
 (function () {
-  var extractProps = function(vals) {
-    var props = {}, a, p, keys;
+  var extractProps = function(start) {
+    var props = {}, a, keys;
 
-    for (var i = 1, al = arguments.length; i < al; ++i) {
+    for (var i = start, al = arguments.length; i < al; ++i) {
       a = arguments[i];
       keys = Object.keys(a);
-      for (var j = 0, kl = keys.length; j < kl; ++j) {
-        p = keys[j];
-        props[p] = vals ? a[p] : true;
-      }
+      for (var j = 0, kl = keys.length; j < kl; ++j)
+        props[keys[j]] = true;
     }
 
     return props;
@@ -20,26 +18,37 @@
       return Object.assign.apply(Object, i == 0 ? objects : Array.prototype.slice.call(objects, i));
     }
     
-    var obj = objects[i], ol = objects.length, keys, o, p;
-    while (++i < ol) {
-      o = objects[i];
-      
-      // First, make sure we have a target object.
-      if (obj == null) {
-        obj = o;
-        continue;
-      }
-      else if (o == null)
-        continue;
-      
-      keys = Object.keys(o);
-      kl = keys.length;
-      for (var j = 0, kl = keys.length; j < kl; ++j) {
-        p = keys[j];
-        if (!newonly || !obj.hasOwnProperty(p))
-          obj[p] = !deep || typeof o[p] !== 'object' ? o[p] : mergeObjects(deep, newonly, 0, [ (typeof obj[p] === 'object' ? obj[p] : {}), o[p] ]);
-      }
-    }
+    var obj = objects[i], 
+        ol = objects.length, 
+        merge = function (target, src) {
+          // First we make sure we have an object to merge with...
+          if (src == null) 
+            return;
+          // ... then, we make sure we have a target object.
+          else if (target == null) {
+            target = src;
+            return;
+          }
+          
+          for (var p in src) {
+            if (target[p] === src[p] || src[p] == null)
+              continue;
+              
+            if (target.hasOwnProperty(p) && newonly)
+              continue;
+            else if (!deep || typeof src[p] !== 'object')
+              target[p] = src[p];
+            else {
+              if (!target.hasOwnProperty(p))
+                target[p] = asSys.mimic(src[p]);
+              merge(target[p], src[p]);
+            }
+          }
+        };
+    
+    // The actual iteration...
+    while (++i < ol)
+      merge(obj, objects[i]);
     
     return obj;
   };
@@ -49,7 +58,7 @@
 		for (var i = start, al = arr.length; i < al; ++i) {
       ai = arr[i];
       for (j = i + 1;j < al; ++j) {
-        if (!callback(ai, arr[j]))
+        if (callback(ai, arr[j]) === false)
           return false;
 		  }
 		}
@@ -57,29 +66,18 @@
 		return true;
   };
   
-  var fnName = function(fn) {
-    if (typeof fn !== 'function')
-      return null;
-    else if (fn.name !== undefined)
-      return fn.name;
-    else {
-      var s = fn.toString().match(/function ([^\(]+)/);
-      return s != null ? s[1] : "";
-    }
-  };
-  
   /** Create a new type of agents, that is capable of given set of skills.
     *
     * Complexity: o(<required skills>)
     */
 	var asSys = function () {
-  	var skillmap = { },
-  	    missing, nm,
+  	var skillmap = [],
+  	    missing,
   	    skills = Array.prototype.slice.call(arguments, 0),
   	    A = function () {
     	    var agent = this,
     	        args = arguments;
-    	    asSys.each(agent.__skills, function (s) { s.apply(agent, args); }); 
+    	    asSys.each(agent.__skills, function (s) { s.apply(agent, args); });
     	  };
   	    
     // Note: skills.length needs to be obtained everytime, because it may change.
@@ -88,8 +86,7 @@
     	
     	// We've come to a skill reference.
     	if (typeof a === 'function' && a.prototype !== undefined) {
-      	nm = fnName(a);
-      	if (skillmap[nm] !== undefined)
+      	if (skillmap.indexOf(a) > -1)
       	  continue;
       	  
       	// If it has dependencies
@@ -112,7 +109,7 @@
         
         // Ok, we don't have expectations that are not met - merge the prototypes
         // Invoke the initialization for it and add this skill to agent's.
-      	skillmap[nm] = a;
+      	skillmap.push(a);
       	if (A.prototype === undefined)
       	  A.prototype = Object.create(a.prototype);
         else
@@ -129,7 +126,7 @@
 	
   /** Compare if two objects are completely equal, i.e. each property has the same value.
     *
-    * Complexity: o(<number of properties>).
+    * Complexity: o(<number of object> ^ 2 * <number of properties>).
     */
   asSys.equal = function (deepCompare /*, objects */) {
     var deep = deepCompare,
@@ -138,7 +135,7 @@
           if (typeof a !== 'object' || typeof b !== 'object')
             return a === b;
           else if (dig !== false) {
-            for (var p in extractProps(false, a, b)) {
+            for (var p in extractProps(0, a, b)) {
         		  if (!match(a[p], b[p], deep))
         		    return false;
             }
@@ -156,7 +153,7 @@
 		
   /** Compare if two objects are similar, i.e. if existing properties match
     *
-    * Complexity: o(<number of properties>).
+    * Complexity: o(<number of object> ^ 2 * <number of properties>).
     */
 	asSys.similar = function (deepCompare /*,objects */) {
   	var deep = deepCompare,
@@ -185,6 +182,29 @@
     return twinScan(arguments, start, match);
 	};
 	
+  /** Extract the properties which are common for all arguments
+    *
+    * Complexity: o(<number of object> ^ 2 * <number of properties>).
+    */
+	asSys.common = function (equal /*objects */) {
+    var eq = equal,
+        start = 0,
+        res = {},
+        extract = function (a, b) {
+          for (var p in a) {
+            if (b.hasOwnProperty(p) && (!eq || a[p] == b[p]))
+              res[p] = a[p];
+          }
+        };
+		if (typeof equal !== 'boolean')
+			eq = false;
+		else
+		  start = 1;
+		
+    twinScan(arguments, start, extract);
+    return res;
+  };
+
   /** Merges all the properties from given objects into the first one.
     * IF a property already exists - it is overriden.
     *
@@ -224,7 +244,7 @@
   	if (typeof agent.filter === 'function')
   	  return agent.filter(selector);
     
-    var res = {}, p,
+    var res = a$.mimic(agent), p,
         keys = Object.keys(agent);
     for (var i = 0, kl = keys.length; i < kl; ++i) {
       p = keys[i];
@@ -267,8 +287,15 @@
       return Object.keys(agent).length;
 	};
 	
-	asSys.id = function (skill) {
-  	return typeof skill === 'function' ? fnName(skill) : skill.toString();
+	asSys.name = function (fn) {
+    if (typeof fn !== 'function')
+      return skill.toString();
+    else if (fn.name !== undefined)
+      return fn.name;
+    else {
+      var s = fn.toString().match(/function ([^\(]+)/);
+      return s != null ? s[1] : "";
+    }
 	};
 	
 	/** Copies all the skills from the given agent, into a new, blank one,
@@ -294,7 +321,10 @@
 	asSys.broadcast = function (agent, activity /*, arguments */) {
   	var args = Array.prototype.slice.call(arguments, 2);
       
-    asSys.each(agent.__skills, function (s) { s.prototype[activity].apply(agent, args); });
+    asSys.each(agent.__skills, function (s) {
+      if (typeof s.prototype[activity] === 'function')
+        s.prototype[activity].apply(agent, args); 
+    });
     return agent;
 	};
 		
@@ -317,7 +347,8 @@
   	*             [2] o(<number of skills> * <number of properties>)
   	*/
 	asSys.capable = function (agent, allskills /* skills */) {
-  	var all = allskills, s,
+  	var all = allskills, s, w,
+  	    proto = Object.getPrototypeOf(agent),
   	    i = 1;
 		if (typeof all !== 'boolean')
 			all = true;
@@ -326,10 +357,16 @@
 
     for (var cnt = 0, start = i, al = arguments.length; i < al; ++i) {
       s = arguments[i];
-      if (agent.__skills !== undefined && agent.__skills[fnName(s)] !== undefined)
+      
+      // We try to go the cheap way...
+      if (agent instanceof s)
         ++cnt;
-      else if (agent instanceof s)
-        ++cnt;
+      // ... but we eventually may need to go the universal way.
+      else {
+        w = asSys.weight(s.prototype);
+        if (w > 0 && asSys.weight(asSys.common(true, proto, s.prototype)) == w)
+          ++cnt;
+      }
     }
 
     return cnt > 0 && (all ? (arguments.length - start) == cnt : true);
@@ -357,7 +394,7 @@
 			
 			// Get this done, only if we're interested to use it afterwards...
 			if (full)
-			  mergeObjects(false, false, 0, [ skills, extractProps(true, Object.getPrototypeOf(e)) ]);
+			  mergeObjects(false, false, 0, [ skills, Object.getPrototypeOf(e) ]);
 			  
 			res.push(e);
 		}

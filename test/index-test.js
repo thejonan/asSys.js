@@ -8,10 +8,12 @@ SkillShow.prototype.show = function () { return this.value; }
 
 function SkillChange() { };
 SkillChange.prototype.change = function (a) { this.value = a; }
+SkillChange.prototype.step = function (s) { this.value += s; }
 
 function SkillCombined() { };
 SkillCombined.prototype.__expects = [ SkillShow, SkillChange ];
 SkillCombined.prototype.combine = function (a, b) { this.value = a + b; }
+SkillCombined.prototype.step = function (s) { this.value += s * s; }
 
 suite.addBatch({
   "asSys:": {
@@ -26,7 +28,7 @@ suite.addBatch({
         assert.equal(o.show(), "one");
       },
       "Checking skills property": function (o) {
-        assert.isDefined(o.__skills.SkillShow);
+        assert.isDefined(o.__skills.indexOf(SkillShow) > -1);
       },
       "Mimicing a native type": function () {
         assert.isTrue(Array.isArray(a$.mimic([])));
@@ -69,6 +71,12 @@ suite.addBatch({
         assert.isArray(o);
         assert.deepEqual(o, [1, 2, 3]);
       },
+      "Extending an array": function () {
+        assert.deepEqual(a$.extend([ 1, 2, 3], [4, 5, 6]), [4, 5, 6 ]);
+      },
+      "Extending a deep array": function () {
+        assert.deepEqual(a$.extend({ a: [ 1, 2, 3], b: 2}, { a: [4, 5, 6], b: [3, 4] }), { a: [4, 5, 6], b: [3, 4]});
+      },
       "Extend from non-empty object": function () {
         assert.deepEqual(a$.extend({_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bc: 7} } ), {_: "", a: 3, b: {ba: 5, bc: 7}, c: 4});
       },
@@ -95,6 +103,12 @@ suite.addBatch({
       },
       "Mixing deep": function () {
         assert.deepEqual(a$.mixin(true, {_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bc: 7} } ), {_: "", a: 1, b: {ba: 5, bb: 6}, c: 4});
+      },
+      "Getting common properties": function () {
+        assert.deepEqual(a$.common({ a: 1, b: 2, c: 3}, { b: 2, c: 4, d: 5}), { b: 2, c: 3 });
+      },
+      "Getting equal common properties": function () {
+        assert.deepEqual(a$.common(true, { a: 1, b: 2, c: 3}, { b: 2, c: 4, d: 5}), { b: 2 });
       }
     },
     
@@ -183,12 +197,6 @@ suite.addBatch({
     },
     
     "Agent capabilities: ": {
-      "An array capabilities check": function () {
-        assert.isFalse(a$.capable([], SkillShow));
-      },
-      "An array own capabilities check": function () {
-        assert.isTrue(a$.capable([], Array));
-      },
       "Single skills capabilities": {
         topic: new (a$(SkillShow))("one"),
         "Custom skill check": function (aa) {
@@ -225,12 +233,6 @@ suite.addBatch({
           aa.change("two");
           assert.equal(aa.show(), "two");
         }
-      },
-      "Complex skills capabilities": {
-        topic: new (a$(Array, SkillShow))("one"),
-        "Array existance check": function (aa) {
-          assert.isTrue(a$.capable(aa, Array));
-        }
       }
     },
     "Agents grouping": {
@@ -253,16 +255,21 @@ suite.addBatch({
       }
     },
     
-    "Overlapping skills": {
-      topic: new (a$(SkillShow))("one"),
-      "Simple act on an agent": function (a) {
-        assert.equal(a$.act(a, SkillShow.prototype.show), "one");
+    "Acting and broadcasting": {
+      "Simple act on an agent": function () {
+        var a = new (a$(SkillCombined))(1);
+        assert.equal(a$.act(a, SkillShow.prototype.show), 1);
       },
-      "Constructor act on an agent": function (a) {
-        a$.act(a, SkillShow, "two");
-        assert.equal(a.show(), "two");
+      "Constructor act on an agent": function () {
+        var a = new (a$(SkillCombined))(1);
+        a$.act(a, SkillShow, 2);
+        assert.equal(a.show(), 2);
+      },
+      "Broadcast to all skills": function () {
+        var a = new (a$(SkillCombined))(1);
+        a$.broadcast(a, 'step', 2);
+        assert.equal(a.value, 7);
       }
-      
     }
   }
 });

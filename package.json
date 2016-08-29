@@ -46,7 +46,7 @@
   },
   "scripts": {
     "pretest": "rm -f as-sys.js as-sys.min.js as-sys.js.zip && export VERSION=`node -e 'console.log(require(\"./package.json\").version)'` && sed -E -e s/{{VERSION}}/$VERSION/ src/asSys.js | uglifyjs -b indent-level=2 -o as-sys.js",
-    "test": "vows && echo && bin/uglify as-sys.js > as-sys.min.js",
+    "test": "vows && echo && uglifyjs -nc -mt < as-sys.js > as-sys.min.js",
     "prepublish": "npm test && chmod a-w as-sys.js as-sys.min.js && zip as-sys.js.zip LICENSE as-sys.js as-sys.min.js",
     "postpublish": "VERSION=`node -e 'console.log(require(\"./package.json\").version)'`; git push && git tag -am \"Release $VERSION.\" ${VERSION} && git push --tags"
   }
