@@ -108,23 +108,38 @@ suite.addBatch({
       "Equality for unequal but similar objects": function () {
         assert.isFalse(a$.equal({ a: 1, b: 2}, { a: 1, b: 2, c: 3} ));
       },
+      "Equality in depth": function () {
+        assert.isTrue(a$.equal(true, { a: 1, b: { ba: "one" } }, { a: 1, b: { ba: "one" } } ));      
+      },
+      "Inequality in depth": function () {
+        assert.isFalse(a$.equal(true, { a: 1, b: { ba: "one" } }, { a: 1, b: { ba: "two" } } ));      
+      },
+      "Inequality in depth, but not in values": function () {
+        assert.isFalse(a$.equal({ a: 1, b: { ba: "one" } }, { a: 1, b: { ba: "one" } } ));      
+      },
+      "Equality for simple types": function () {
+        assert.isTrue(a$.equal("one", "one"));
+      },
+      "Inequality for simple types": function () {
+        assert.isFalse(a$.equal("1", 1));
+      },
       "Similarity for unequal but similar objects": function () {
         assert.isTrue(a$.similar({ a: 1, b: 2}, { a: 1, b: 2, c: 3} ));
       },
       "Similarity for object with different value for same property": function () {
         assert.isFalse(a$.similar({ a: 1, b: 2}, { a: 1, b: 3, c: 3} ));
       },
-      "Matching number of its string": function () {
-        assert.isTrue(a$.match(1, "1"));
+      "Similarity between number of its string": function () {
+        assert.isTrue(a$.similar(1, "1"));
       },
-      "Matching with regexp": function () {
-        assert.isTrue(a$.match("Another test string", /test/));
+      "Similarity with regexp": function () {
+        assert.isTrue(a$.similar("Another test string", /test/));
       },
-      "Matching unmatchable": function () {
-        assert.isFalse(a$.match(/test/, "Without it"));
+      "Similarity unmatchable": function () {
+        assert.isFalse(a$.similar(/test/, "Without it"));
       },
-      "Matching objects": function () {
-        assert.isTrue(a$.match({ a: 1, b: 2}, { a: 1, b: 2, c: 3} ));
+      "Similarity between object in depth": function () {
+        assert.isTrue(a$.similar(true, {a: 1, b: { ba: "one" }}, { b: { ba: /n/ } }));
       }
     },
     

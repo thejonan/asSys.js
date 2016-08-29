@@ -131,21 +131,25 @@
     */
   asSys.equal = function (deepCompare /*, objects */) {
     var deep = deepCompare,
-        start = 0;
+        start = 0,
+        match = function (a, b, dig) {
+          if (typeof a !== 'object' || typeof b !== 'object')
+            return a === b;
+          else if (dig !== false) {
+            for (var p in extractProps(false, a, b)) {
+        		  if (!match(a[p], b[p], deep))
+        		    return false;
+            }
+            
+            return true;
+    		  }
+        };
 		if (typeof deep !== 'boolean')
 			deep = false;
 		else
 		  start = 1;
 		
-		return twinScan(arguments, start, function (ai, aj) {
-      for (var p in extractProps(false, ai, aj)) {
-  		  if (deep && typeof ai[p] === 'object' && typeof aj[p] === 'object' && !asSys.equal(deep, ai[p], aj[p]))
-  		    return false;
-  		  else if (ai[p] !== aj[p])
-          return false;
-		  }
-		  return true;
-		});
+		return twinScan(arguments, start, match);
 	};
 		
   /** Compare if two objects are similar, i.e. if existing properties match
@@ -155,34 +159,28 @@
 	asSys.similar = function (deepCompare /*,objects */) {
   	var deep = deepCompare,
   	    start = 0;
+  	    match = function (a, b, dig) {
+          if (a instanceof RegExp && typeof b === 'string')
+            return b.match(a) != null;
+          else if (b instanceof RegExp && typeof a === 'string')
+            return a.match(b) != null;
+          else if (typeof a !== 'object' || typeof b !== 'object')
+            return a == b;
+          else if (dig !== false) {
+            for (var p in a) {
+              if (b[p] !== undefined && !match(a[p], b[p], deep))
+                return false;
+            }
+            
+            return true;
+          }
+  	    };
 		if (typeof deep !== 'boolean')
 			deep = false;
 		else
 		  start = 1;
 			
-    return twinScan(arguments, start, function(ai, aj) {
-		  for (var p in ai) {
-  		  if (deep && typeof ai[p] === 'object' && typeof aj[p] === 'object' && !asSys.similar(deep, ai[p], aj[p]))
-  		    return false;
-        else if (aj[p] !== undefined && ai[p] != aj[p])
-			    return false;
-		  }
-		  
-		  return true;
-    });
-	};
-	
-	/** Compare two general values - regexp / string / object, etc.
-  	*/
-	asSys.match = function (a, b) {
-    if (typeof a === 'object' && typeof b === 'object')
-      return asSys.similar(a, b);
-    else if (a instanceof RegExp && typeof b === 'string')
-      return b.match(a) != null;
-    else if (b instanceof RegExp && typeof a === 'string')
-      return a.match(b) != null;
-    else
-      return a == b;
+    return twinScan(arguments, start, match);
 	};
 	
   /** Merges all the properties from given objects into the first one.
