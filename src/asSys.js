@@ -29,6 +29,8 @@
         obj = o;
         continue;
       }
+      else if (o == null)
+        continue;
       
       keys = Object.keys(o);
       kl = keys.length;

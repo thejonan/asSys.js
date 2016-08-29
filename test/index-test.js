@@ -75,6 +75,9 @@ suite.addBatch({
       "Extend deep": function () {
         assert.deepEqual(a$.extend(true, {_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bc: 7} } ), {_: "", a: 3, b: {ba: 5, bb: 6, bc: 7}, c: 4});
       },
+      "Extending with null object": function () {
+        assert.deepEqual(a$.extend(null, {a: 1, b: 2 }, null, { b: 3 }), {a: 1, b: 3});
+      },
       "Mixing with two objects": function () {
           assert.deepEqual(a$.mixin({}, {a: 1, b: 2}, { a: 3, c: 4}), {a: 1, b: 2, c: 4});
       },

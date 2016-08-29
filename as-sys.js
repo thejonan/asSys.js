@@ -22,7 +22,7 @@
       if (obj == null) {
         obj = o;
         continue;
-      }
+      } else if (o == null) continue;
       keys = Object.keys(o);
       kl = keys.length;
       for (var j = 0, kl = keys.length; j < kl; ++j) {
