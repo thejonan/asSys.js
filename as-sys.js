@@ -49,7 +49,12 @@
     }
   };
   var asSys = function() {
-    var A = function() {}, skillmap = {}, missing, obj, nm, args = [], skills = Array.prototype.slice.call(arguments, 0);
+    var skillmap = {}, missing, nm, skills = Array.prototype.slice.call(arguments, 0), A = function() {
+      var agent = this, args = arguments;
+      asSys.each(agent.__skills, function(s) {
+        s.apply(agent, args);
+      });
+    };
     for (var i = 0, a; i < skills.length; ++i) {
       a = skills[i];
       if (typeof a === "function" && a.prototype !== undefined) {
@@ -69,7 +74,7 @@
         }
         skillmap[nm] = a;
         if (A.prototype === undefined) A.prototype = Object.create(a.prototype); else mergeObjects(true, false, 0, [ A.prototype, a.prototype ]);
-      } else args.push(a);
+      }
     }
     Object.defineProperties(A.prototype, {
       __skills: {
@@ -78,22 +83,9 @@
         value: skillmap
       }
     });
-    obj = new A();
-    if (args.length > 0) {
-      args.unshift(obj);
-      asSys.init.apply(this, args);
-    }
-    return obj;
+    return A;
   };
   asSys.version = "0.9.0";
-  asSys.init = function(agent) {
-    var args = Array.prototype.slice.call(arguments, 1);
-    if (agent.__skills === undefined) return agent.constructor.apply(agent, args) || agent;
-    asSys.each(agent.__skills, function(s) {
-      s.apply(agent, args);
-    });
-    return agent;
-  };
   asSys.equal = function(deepCompare) {
     var deep = deepCompare, start = 0;
     if (typeof deep !== "boolean") deep = false; else start = 1;
@@ -137,7 +129,7 @@
     return res;
   };
   asSys.each = function(agent, actor) {
-    if (typeof agent.forEach === "function") agent.forEach(actor); else {
+    if (agent == null) ; else if (typeof agent.forEach === "function") agent.forEach(actor); else {
       var k = Object.keys(agent), p;
       for (var i = 0, kl = k.length; i < kl; ++i) {
         p = k[i];

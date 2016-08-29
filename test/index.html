@@ -20,9 +20,12 @@
   SkillCombined.prototype.__expects = [ SkillShow, SkillChange ];
   SkillCombined.prototype.combine = function (a, b) { this.value = a + b; }
   
-  var aa = a$(SkillShow, "one"),
-      bb = a$(SkillChange),
-      cc = a$(SkillShow, SkillChange, "me"),
+  var SA = a$(SkillShow),
+      SC = a$(SkillShow, SkillChange);
+  
+  var aa = new SA("one"),
+      bb = new (a$(SkillChange)),
+      cc = new SC("me"),
       pool = [ aa, bb, cc ];
   
 </script>

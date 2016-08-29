@@ -15,7 +15,7 @@ SkillCombined.prototype.combine = function (a, b) { this.value = a + b; }
 
 suite.addBatch({
   "asSys:": {
-    topic: a$(SkillShow, "one"),
+    topic: new (a$(SkillShow))("one"),
     "is not a global when require’d": function() {
       assert.equal("asSys" in global, false);
     },
@@ -36,19 +36,19 @@ suite.addBatch({
         assert.isUndefined(a$.mimic(o).value);
       },
       "Respecting the expected skills": function () {
-        var o = a$(SkillCombined);
+        var o = new (a$(SkillCombined));
         assert.isDefined(o.show);
         assert.isDefined(o.change);
         assert.isDefined(o.combine);
       },
       "Using own methods when there are expected skills": function () {
-        var o = a$(SkillCombined);
+        var o = new (a$(SkillCombined));
         o.combine("one", "two");
         assert.equal(o.show(), "onetwo");
       },
       
       "Using methods from expected skills": function () {
-        var o = a$(SkillCombined);
+        var o = new (a$(SkillCombined));
         o.change("test");
         assert.equal(o.show(), "test");
       }
@@ -172,7 +172,7 @@ suite.addBatch({
         assert.isTrue(a$.capable([], Array));
       },
       "Single skills capabilities": {
-        topic: a$("one", SkillShow),
+        topic: new (a$(SkillShow))("one"),
         "Custom skill check": function (aa) {
           assert.isTrue(a$.capable(aa, SkillShow));
         },
@@ -191,7 +191,7 @@ suite.addBatch({
         }
       },
       "Dual skills capabilities": {
-        topic: a$("one", SkillShow, SkillChange),
+        topic: new (a$(SkillShow, SkillChange))("one"),
         "Separate skill check": function (aa) {
           assert.isTrue(a$.capable(aa, SkillShow));
           assert.isTrue(a$.capable(aa, SkillChange));
@@ -209,14 +209,14 @@ suite.addBatch({
         }
       },
       "Complex skills capabilities": {
-        topic: a$("one", Array, SkillShow),
+        topic: new (a$(Array, SkillShow))("one"),
         "Array existance check": function (aa) {
           assert.isTrue(a$.capable(aa, Array));
         }
       }
     },
     "Agents grouping": {
-      topic: [ a$(SkillShow, "one"), a$(SkillChange), a$(SkillShow, SkillChange, "me") ],
+      topic: [ new (a$(SkillShow))("one"), new (a$(SkillChange)), new (a$(SkillShow, SkillChange))("me") ],
       "Select skilled agensts": function (pool) {
         assert.equal(a$.group(pool, function (a) { return a$.capable(a, SkillShow); }).length, 2);
       },
@@ -236,7 +236,7 @@ suite.addBatch({
     },
     
     "Overlapping skills": {
-      topic: a$(SkillShow, "one"),
+      topic: new (a$(SkillShow))("one"),
       "Simple act on an agent": function (a) {
         assert.equal(a$.act(a, SkillShow.prototype.show), "one");
       },

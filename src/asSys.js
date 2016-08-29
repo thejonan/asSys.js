@@ -66,16 +66,19 @@
     }
   };
   
-  /** Create a new agent, with given set of skills: skill1, skill2, ..., skillN
+  /** Create a new type of agents, that is capable of given set of skills.
     *
     * Complexity: o(<required skills>)
     */
 	var asSys = function () {
-  	var A = function () {},
-  	    skillmap = { },
-  	    missing, obj, nm,
-  	    args = [],
-  	    skills = Array.prototype.slice.call(arguments, 0);
+  	var skillmap = { },
+  	    missing, nm,
+  	    skills = Array.prototype.slice.call(arguments, 0),
+  	    A = function () {
+    	    var agent = this,
+    	        args = arguments;
+    	    asSys.each(agent.__skills, function (s) { s.apply(agent, args); }); 
+    	  };
   	    
     // Note: skills.length needs to be obtained everytime, because it may change.
   	for (var i = 0, a; i < skills.length; ++i) {
@@ -113,35 +116,14 @@
         else
           mergeObjects(true, false, 0, [ A.prototype, a.prototype ])
       }
-      else
-        args.push(a);
     }
     
     Object.defineProperties(A.prototype, { __skills: { enumerable: false, writable: false, value: skillmap } });
-    obj = new A();
-    if (args.length > 0) {
-      args.unshift(obj);
-      asSys.init.apply(this, args);
-    }
-    return obj;
+    return A;
 	};
 	
 	// The current version. Keep it this way - packaging script will put package.json's derived value here.
 	asSys.version = "{{VERSION}}";
-
-  /** Initialize the agent with given skill's constructor, passing the rest of the arguments
-    *
-    * Complexity: o(<number of capable skills>).
-    */	
-	asSys.init = function (agent) {
-  	var args = Array.prototype.slice.call(arguments, 1);
-  	if (agent.__skills === undefined)
-      return agent.constructor.apply(agent, args) || agent;
-      
-    asSys.each(agent.__skills, function (s) { s.apply(agent, args); });
-    
-    return agent;
-	};
 	
   /** Compare if two objects are completely equal, i.e. each property has the same value.
     *
@@ -258,7 +240,9 @@
   	* Complexity: o(<number of own properties>).
   	*/
 	asSys.each = function (agent, actor) {
-  	if (typeof agent.forEach ==='function')
+  	if (agent == null)
+  	  ;
+  	else if (typeof agent.forEach ==='function')
     	agent.forEach(actor);
     else {
       var k = Object.keys(agent), p;
