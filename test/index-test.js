@@ -108,7 +108,10 @@ suite.addBatch({
         assert.deepEqual(a$.common({ a: 1, b: 2, c: 3}, { b: 2, c: 4, d: 5}), { b: 2, c: 3 });
       },
       "Getting equal common properties": function () {
-        assert.deepEqual(a$.common(true, { a: 1, b: 2, c: 3}, { b: 2, c: 4, d: 5}), { b: 2 });
+        assert.deepEqual(a$.common(true, { a: 1, b: 2, c: 3}, { b: 2, c: 4, d: 5 }), { b: 2 });
+      },
+      "Getting commons from an array": function () {
+        assert.deepEqual(a$.common([1, 2, 3, 4], [3, 4, 5]), [3, 4]);
       }
     },
     

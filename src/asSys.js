@@ -184,24 +184,39 @@
 	
   /** Extract the properties which are common for all arguments
     *
-    * Complexity: o(<number of object> ^ 2 * <number of properties>).
+    * Complexity: o(<number of object> * <number of properties>).
     */
 	asSys.common = function (equal /*objects */) {
     var eq = equal,
-        start = 0,
-        res = {},
+        idx = 0,
+        res = null,
+        argl = arguments.length,
         extract = function (a, b) {
-          for (var p in a) {
-            if (b.hasOwnProperty(p) && (!eq || a[p] == b[p]))
-              res[p] = a[p];
+          if (res == null)
+            res = asSys.mimic(a);
+
+          // As always, arrays need special treatment...
+          if (Array.isArray(a) && Array.isArray(b)) {
+            for (var i = 0, al = a.length; i < al; ++i) {
+              if (b.indexOf(a[i]) > -1)
+                res.push(a[i]);
+            }
+          }
+          else {
+            for (var p in a) {
+              if (b.hasOwnProperty(p) && (!eq || a[p] == b[p]))
+                res[p] = a[p];
+            }
           }
         };
 		if (typeof equal !== 'boolean')
 			eq = false;
 		else
-		  start = 1;
+		  idx = 1;
+		  
+		while(++idx < argl)
+  		extract(res == null ? arguments[idx - 1] : res, arguments[idx]);
 		
-    twinScan(arguments, start, extract);
     return res;
   };
 
