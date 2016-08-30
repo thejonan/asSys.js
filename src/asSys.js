@@ -244,11 +244,11 @@
   	if (typeof agent.filter === 'function')
   	  return agent.filter(selector);
     
-    var res = a$.mimic(agent), p,
+    var res = asSys.mimic(agent), p,
         keys = Object.keys(agent);
     for (var i = 0, kl = keys.length; i < kl; ++i) {
       p = keys[i];
-      if (selector(p, agent))
+      if (selector(agent[p], p, agent))
         res[p] = agent[p];
     }
     

@@ -123,10 +123,10 @@
   };
   asSys.filter = function(agent, selector) {
     if (typeof agent.filter === "function") return agent.filter(selector);
-    var res = a$.mimic(agent), p, keys = Object.keys(agent);
+    var res = asSys.mimic(agent), p, keys = Object.keys(agent);
     for (var i = 0, kl = keys.length; i < kl; ++i) {
       p = keys[i];
-      if (selector(p, agent)) res[p] = agent[p];
+      if (selector(agent[p], p, agent)) res[p] = agent[p];
     }
     return res;
   };

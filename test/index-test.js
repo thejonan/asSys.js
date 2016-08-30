@@ -163,6 +163,25 @@ suite.addBatch({
       }
     },
     
+    "Filtering and enumeration": {
+      "Simple iteration on array": function () {
+        var sum = 0;
+        a$.each([1, 2, 3, 4, 5], function (n) { sum += n; })
+        assert.equal(sum, 15);
+      },
+      "Simple iteration of an object": function () {
+        var sum = 0;
+        a$.each({ a: 1, b: 2, c: 3, d: 4, e: 5}, function (v) { sum += v; })
+        assert.equal(sum, 15);
+      },
+      "Filtering an array": function () {
+        assert.deepEqual(a$.filter([1, 2, 3, 4, 5], function (n) { return n < 4; }), [1, 2, 3]);
+      }, 
+      "Filtering an object": function () {
+        assert.deepEqual(a$.filter({ one: 1, two: 2, three: 3, four: 4, five: 5}, function (v, k) { return k.match(/[of]/) && v < 3; }), { one: 1, two: 2 });
+      }
+    },
+    
     "Agent simple characteristics:": {
       "Weight counting with simple object": function () {
         assert.equal(a$.weight({ a: 1}), 1);
