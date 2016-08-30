@@ -159,10 +159,10 @@
   	var deep = deepCompare,
   	    start = 0;
   	    match = function (a, b, dig) {
-          if (a instanceof RegExp && typeof b === 'string')
-            return b.match(a) != null;
-          else if (b instanceof RegExp && typeof a === 'string')
-            return a.match(b) != null;
+          if (a instanceof RegExp)
+            return (typeof b === 'string') && b.match(a) != null;
+          else if (b instanceof RegExp)
+            return (typeof a === 'string') && a.match(b) != null;
           else if (typeof a !== 'object' || typeof b !== 'object')
             return a == b;
           else if (dig !== false) {

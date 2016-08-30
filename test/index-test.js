@@ -152,6 +152,9 @@ suite.addBatch({
       "Similarity with regexp": function () {
         assert.isTrue(a$.similar("Another test string", /test/));
       },
+      "Weird similarity with regexp": function () {
+        assert.isFalse(a$.similar({ a: "Another test string" }, /test/));
+      },
       "Similarity unmatchable": function () {
         assert.isFalse(a$.similar(/test/, "Without it"));
       },
