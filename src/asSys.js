@@ -12,6 +12,10 @@
     return props;
   };
   
+  var copyEnabled = function (agent) {
+    return (agent != null) && (typeof agent === 'object') && (typeof agent.constructor === 'function');
+  };
+  
   var mergeObjects = function (deep, newonly, i, objects) {
     if (!deep && !newonly && typeof Object.assign === 'function') {
       for (;objects[i] == null;++i);
@@ -31,16 +35,17 @@
           }
           
           for (var p in src) {
-            if (target[p] === src[p] || src[p] == null)
+            if (target[p] === src[p])
               continue;
               
-            if (target.hasOwnProperty(p) && newonly)
+            if (target[p] !== undefined && newonly)
               continue;
-            else if (!deep || typeof src[p] !== 'object')
+            else if (!deep || typeof src[p] !== 'object' || !src.hasOwnProperty(p) || !copyEnabled(src[p]))
               target[p] = src[p];
             else {
-              if (!target.hasOwnProperty(p))
+              if (target[p] == null)
                 target[p] = asSys.mimic(src[p]);
+
               merge(target[p], src[p]);
             }
           }
@@ -77,7 +82,12 @@
   	    A = function () {
     	    var agent = this,
     	        args = arguments;
-    	    asSys.each(agent.__skills, function (s) { s.apply(agent, args); });
+    	        
+    	   if (!agent.__initialization) {
+      	   agent.__initialization = true;
+    	     asSys.each(agent.__skills, function (s) { s.apply(agent, args); });
+      	   delete agent.__initialization;
+    	   }
     	  };
   	    
     // Note: skills.length needs to be obtained everytime, because it may change.
@@ -317,8 +327,11 @@
   	* Complexity: o(1);
   	*/
 	asSys.mimic = function (agent) {
-  	var o = Object.create(Object.getPrototypeOf(agent));
-  	return agent.constructor.apply(o, Array.prototype.slice(arguments, 1)) || o;
+  	if (copyEnabled(agent)) {
+    	var o = Object.create(Object.getPrototypeOf(agent));
+    	return agent.constructor.apply(o, Array.prototype.slice(arguments, 1)) || o;
+    }
+    // Yes, otherwise we return `unefined` - fair enough
 	};
 	
 	/** Performs a specific method from a skill, onto the given agent.
@@ -446,9 +459,16 @@
     */
   if ( typeof module === "object" && module && typeof module.exports === "object" )
   	module.exports = asSys;
-  else {
+  else if ( typeof define === "function" && define.amd ) {
+    define(asSys);
+    this.asSys = asSys;
+  }
+  else { // Probably browser version...
+/*
+    if (this.jQuery && this.jQuery.extend)
+      asSys.extend = jQuery.extend;
+*/
+      
     this.asSys = this.a$ = asSys;
-    if ( typeof define === "function" && define.amd )
-      define(asSys);
   }
 })();

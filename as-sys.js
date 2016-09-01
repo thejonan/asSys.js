@@ -8,6 +8,9 @@
     }
     return props;
   };
+  var copyEnabled = function(agent) {
+    return agent != null && typeof agent === "object" && typeof agent.constructor === "function";
+  };
   var mergeObjects = function(deep, newonly, i, objects) {
     if (!deep && !newonly && typeof Object.assign === "function") {
       for (;objects[i] == null; ++i) ;
@@ -19,9 +22,9 @@
         return;
       }
       for (var p in src) {
-        if (target[p] === src[p] || src[p] == null) continue;
-        if (target.hasOwnProperty(p) && newonly) continue; else if (!deep || typeof src[p] !== "object") target[p] = src[p]; else {
-          if (!target.hasOwnProperty(p)) target[p] = asSys.mimic(src[p]);
+        if (target[p] === src[p]) continue;
+        if (target[p] !== undefined && newonly) continue; else if (!deep || typeof src[p] !== "object" || !src.hasOwnProperty(p) || !copyEnabled(src[p])) target[p] = src[p]; else {
+          if (target[p] == null) target[p] = asSys.mimic(src[p]);
           merge(target[p], src[p]);
         }
       }
@@ -42,9 +45,13 @@
   var asSys = function() {
     var skillmap = [], missing, skills = Array.prototype.slice.call(arguments, 0), A = function() {
       var agent = this, args = arguments;
-      asSys.each(agent.__skills, function(s) {
-        s.apply(agent, args);
-      });
+      if (!agent.__initialization) {
+        agent.__initialization = true;
+        asSys.each(agent.__skills, function(s) {
+          s.apply(agent, args);
+        });
+        delete agent.__initialization;
+      }
     };
     for (var i = 0, a; i < skills.length; ++i) {
       a = skills[i];
@@ -156,8 +163,10 @@
     }
   };
   asSys.mimic = function(agent) {
-    var o = Object.create(Object.getPrototypeOf(agent));
-    return agent.constructor.apply(o, Array.prototype.slice(arguments, 1)) || o;
+    if (copyEnabled(agent)) {
+      var o = Object.create(Object.getPrototypeOf(agent));
+      return agent.constructor.apply(o, Array.prototype.slice(arguments, 1)) || o;
+    }
   };
   asSys.act = function(agent, activity) {
     if (agent != null && typeof activity === "function") {
@@ -224,8 +233,10 @@
     }
     return res;
   };
-  if (typeof module === "object" && module && typeof module.exports === "object") module.exports = asSys; else {
+  if (typeof module === "object" && module && typeof module.exports === "object") module.exports = asSys; else if (typeof define === "function" && define.amd) {
+    define(asSys);
+    this.asSys = asSys;
+  } else {
     this.asSys = this.a$ = asSys;
-    if (typeof define === "function" && define.amd) define(asSys);
   }
 })();
