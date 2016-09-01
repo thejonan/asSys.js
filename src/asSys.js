@@ -13,7 +13,10 @@
   };
   
   var copyEnabled = function (agent) {
-    return (agent != null) && (typeof agent === 'object') && (typeof agent.constructor === 'function');
+    return  (agent != null) && 
+            (typeof agent === 'object') && 
+            (typeof agent.constructor === 'function') &&
+            !agent.nodeType;
   };
   
   var mergeObjects = function (deep, newonly, i, objects) {
@@ -42,11 +45,17 @@
               continue;
             else if (!deep || typeof src[p] !== 'object' || !src.hasOwnProperty(p) || !copyEnabled(src[p]))
               target[p] = src[p];
-            else {
+            // it is pretty annoying not being able to detect copability of src[p].
+            // Still, it is better to have the exception handling here, because
+            // putting it in to copyEnabled will double the constructor invocation.
+            else try { 
               if (target[p] == null)
                 target[p] = asSys.mimic(src[p]);
 
               merge(target[p], src[p]);
+            }
+            catch (e) {
+              target[p] = src[p];
             }
           }
         };
@@ -210,17 +219,19 @@
         res = null,
         argl = arguments.length,
         extract = function (a, b) {
-          if (res == null)
-            res = asSys.mimic(a);
-
           // As always, arrays need special treatment...
           if (Array.isArray(a) && Array.isArray(b)) {
+            if (res == null)
+              res = [];
+            
             for (var i = 0, al = a.length; i < al; ++i) {
               if (b.indexOf(a[i]) > -1)
                 res.push(a[i]);
             }
           }
           else {
+            if (res == null)
+              res = {};
             for (var p in a) {
               if (b.hasOwnProperty(p) && (!eq || a[p] == b[p]))
                 res[p] = a[p];
@@ -337,7 +348,11 @@
 	asSys.mimic = function (agent) {
   	if (copyEnabled(agent)) {
     	var o = Object.create(Object.getPrototypeOf(agent));
-    	return agent.constructor.apply(o, Array.prototype.slice(arguments, 1)) || o;
+    	try {
+    	  return agent.constructor.apply(o, Array.prototype.slice(arguments, 1)) || o;
+      }
+      catch (e) {
+      }
     }
     // Yes, otherwise we return `unefined` - fair enough
 	};
