@@ -45,12 +45,12 @@
   var asSys = function() {
     var skillmap = [], missing, skills = Array.prototype.slice.call(arguments, 0), A = function() {
       var agent = this, args = arguments;
-      if (!agent.__initialization) {
-        agent.__initialization = true;
+      if (!agent.__initializing) {
+        agent.__initializing = true;
         asSys.each(agent.__skills, function(s) {
           s.apply(agent, args);
         });
-        delete agent.__initialization;
+        delete agent.__initializing;
       }
     };
     for (var i = 0, a; i < skills.length; ++i) {
