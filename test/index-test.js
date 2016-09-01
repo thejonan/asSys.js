@@ -54,10 +54,10 @@ suite.addBatch({
         o.change("test");
         assert.equal(o.show(), "test");
       },
-      "Use an already skilled definition as reference": function () {
-        var s = a$(SkillCombined),
+      "Use an already crafted skill as reference": function () {
+        var s = a$(SkillShow),
             o = new (a$(s))("recursive");
-        assert(o.show(), "recursive");
+        assert.equal(o.show(), "recursive");
       }
     },
     

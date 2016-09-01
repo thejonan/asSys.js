@@ -71,6 +71,12 @@
         }
         skillmap.push(a);
         if (A.prototype === undefined) A.prototype = Object.create(a.prototype); else mergeObjects(true, false, 0, [ A.prototype, a.prototype ]);
+        if (a.prototype.__skills !== undefined) {
+          for (var j = 0, ssl = a.prototype.__skills.length, ss; j < ssl; ++j) {
+            ss = a.prototype.__skills[j];
+            if (skillmap.indexOf(ss) == -1) skillmap.push(ss);
+          }
+        }
       }
     }
     Object.defineProperties(A.prototype, {
