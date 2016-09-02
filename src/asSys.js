@@ -379,6 +379,21 @@
     return agent;
 	};
 		
+  /** Call the activity on the first skill containing it _before_
+    * the given one, i.e. - the activity which most probably was
+    * overriden by the given one.
+    */
+  asSys.pass = function (agent, skill, activity) {
+    var i = agent.__skills && agent.__skills.indexOf(skill), s;
+    if (i > -1) {
+      while (--i >= 0) {
+        s = agent.__skills[i];
+        if (typeof s.prototype[activity] === 'function')
+          return s.prototype[activity].apply(agent, Array.prototype.slice.call(arguments, 3));
+      }
+    }
+  };
+  
   /** Tells whether given agent can perform specific activity.
     */
 	asSys.can = function (agent, activity) {

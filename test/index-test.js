@@ -286,19 +286,29 @@ suite.addBatch({
     },
     
     "Acting and broadcasting": {
-      "Simple act on an agent": function () {
-        var a = new (a$(SkillCombined))(1);
+      topic: new (a$(SkillCombined))(1),
+      "Normal call of overriden activity": function (a) {
+        a.step(2);
+        assert.equal(a.value, 5);
+      },
+      "Simple act on an agent": function (a) {
+        a.value = 1;
         assert.equal(a$.act(a, SkillShow.prototype.show), 1);
       },
-      "Constructor act on an agent": function () {
-        var a = new (a$(SkillCombined))(1);
+      "Constructor act on an agent": function (a) {
+        a.value = 1; // We need to RESET the value from previous test...
         a$.act(a, SkillShow, 2);
         assert.equal(a.show(), 2);
       },
-      "Broadcast to all skills": function () {
-        var a = new (a$(SkillCombined))(1);
+      "Broadcast to all skills": function (a) {
+        a.value = 1;
         a$.broadcast(a, 'step', 2);
         assert.equal(a.value, 7);
+      },
+      "Pass to super's activity": function (a) {
+        a.value = 1;
+        a$.pass(a, SkillCombined, 'step', 2);
+        assert.equal(a.value, 3);
       }
     }
   }

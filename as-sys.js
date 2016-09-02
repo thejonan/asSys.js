@@ -191,6 +191,15 @@
     });
     return agent;
   };
+  asSys.pass = function(agent, skill, activity) {
+    var i = agent.__skills && agent.__skills.indexOf(skill), s;
+    if (i > -1) {
+      while (--i >= 0) {
+        s = agent.__skills[i];
+        if (typeof s.prototype[activity] === "function") return s.prototype[activity].apply(agent, Array.prototype.slice.call(arguments, 3));
+      }
+    }
+  };
   asSys.can = function(agent, activity) {
     return typeof agent === "object" && agent[activity] != null && typeof agent[activity] === "function";
   };
