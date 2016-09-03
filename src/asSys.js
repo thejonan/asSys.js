@@ -357,6 +357,35 @@
     // Yes, otherwise we return `unefined` - fair enough
 	};
 	
+	/** Gets or sets the value at the agent, following the given path.
+  	* If we're setting the value, the missing component along the way
+  	* will be created.
+  	*/
+  	
+  asSys.path = function (agent, path, value) {
+    if (path == null)
+      return;
+      
+    try {
+      if (value === undefined)
+        eval("value = agent." + path);
+      else
+        eval("agent." + path + " = value");
+    }
+    catch(e) {
+      if (!value)
+        return value;
+        
+      var arr = path.split('.');
+      for (var i = 0, al = arr.length; i < al - 1; ++i)
+        agent = agent[arr[i]] = agent[arr[i]] || {};
+
+      agent[arr[i]] = value;
+    }
+    
+    return value;
+  };
+  
 	/** Performs a specific method from a skill, onto the given agent.
   	* Complexity: o(1)
   	*/

@@ -61,7 +61,7 @@ suite.addBatch({
       }
     },
     
-    "Extending and mixing": {
+    "Extending, mixing": {
       "Extend empty object": function () {
         assert.deepEqual(a$.extend({}, {a: 1, b: 2}), { a: 1, b: 2});
       },
@@ -117,6 +117,25 @@ suite.addBatch({
       },
       "Getting commons from an array": function () {
         assert.deepEqual(a$.common([1, 2, 3, 4], [3, 4, 5]), [3, 4]);
+      }
+    },
+    
+    "Path based retrieval and manipulation": {
+      topic: { a: 1, b: 2, c: { ca: 3, cb: 4 } },
+      "Getting a value from a path in an agent": function (o) {
+        assert.equal(a$.path(o, "c.ca"), 3);
+      },
+      "Setting a value with a path": function (o) {
+        a$.path(o, "c.cb", 5);
+        assert.equal(o.c.cb, 5);
+      },
+      "Building a path when components are missing": function (o) {
+        a$.path(o, "c.cd", 7);
+        assert.equal(o.c.cd, 7);
+      },
+      "Bulding a path from the root of the object": function (o) {
+        a$.path(o, "d.a.aa.aaa", 8);
+        assert.deepEqual(o.d, { a: { aa: { aaa: 8 } } });
       }
     },
     

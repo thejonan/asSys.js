@@ -179,6 +179,18 @@
       } catch (e) {}
     }
   };
+  asSys.path = function(agent, path, value) {
+    if (path == null) return;
+    try {
+      if (value === undefined) eval("value = agent." + path); else eval("agent." + path + " = value");
+    } catch (e) {
+      if (!value) return value;
+      var arr = path.split(".");
+      for (var i = 0, al = arr.length; i < al - 1; ++i) agent = agent[arr[i]] = agent[arr[i]] || {};
+      agent[arr[i]] = value;
+    }
+    return value;
+  };
   asSys.act = function(agent, activity) {
     if (agent != null && typeof activity === "function") {
       return activity.apply(agent, Array.prototype.slice.call(arguments, 2));
