@@ -308,6 +308,9 @@
   	  ;
   	else if (typeof agent.forEach ==='function')
     	agent.forEach(actor);
+    else if (typeof agent !== 'object') {
+      actor(agent);
+    }
     else {
       var k = Object.keys(agent), p;
       for (var i = 0, kl = k.length; i < kl; ++i) {

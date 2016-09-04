@@ -201,6 +201,11 @@ suite.addBatch({
         a$.each({ a: 1, b: 2, c: 3, d: 4, e: 5}, function (v) { sum += v; })
         assert.equal(sum, 15);
       },
+      "Enumerate a plain object": function () {
+        var val = null;
+        a$.each("one", function (v) { val = v; });
+        assert.equal(val, "one");
+      },
       "Filtering an array": function () {
         assert.deepEqual(a$.filter([1, 2, 3, 4, 5], function (n) { return n < 4; }), [1, 2, 3]);
       }, 
