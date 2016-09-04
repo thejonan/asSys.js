@@ -136,6 +136,9 @@ suite.addBatch({
       "Bulding a path from the root of the object": function (o) {
         a$.path(o, "d.a.aa.aaa", 8);
         assert.deepEqual(o.d, { a: { aa: { aaa: 8 } } });
+      },
+      "Passing the path as an array": function (o) {
+        assert.equal(a$.path(o, ['c', 'ca']), 3);
       }
     },
     

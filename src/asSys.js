@@ -369,22 +369,27 @@
     if (path == null)
       return;
       
-    try {
-      if (value === undefined)
-        eval("value = agent." + path);
-      else
-        eval("agent." + path + " = value");
-    }
-    catch(e) {
-      if (!value)
+    if (!Array.isArray(path)) {
+      try {
+        if (value === undefined)
+          eval("value = agent." + path);
+        else
+          eval("agent." + path + " = value");
+          
         return value;
-        
-      var arr = path.split('.');
-      for (var i = 0, al = arr.length; i < al - 1; ++i)
-        agent = agent[arr[i]] = agent[arr[i]] || {};
-
-      agent[arr[i]] = value;
+      }
+      catch(e) { 
+        path = path.split("."); 
+      }
     }
+      
+    for (var i = 0, pl = path.length; i < pl - 1; ++i)
+      agent = agent[path[i]] = agent[path[i]] || {};
+
+    if (value !== undefined)
+      agent[path[i]] = value;
+    else
+      value = agent[path[i]];
     
     return value;
   };
