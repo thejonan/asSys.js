@@ -80,172 +80,175 @@ describe("asSys", function () {
 		});
 	});
 
-	/* #2
-	describe("Extending, mixing": function () {
+	describe("Extending, mixing", function () {
 
 		it("Extend empty object", function() {
-			expect(a$.extend({}, {a: 1, b: 2})).toDeepEqual(, { a: 1, b: 2});
+			expect(a$.extend({}, {a: 1, b: 2})).toDeepEqual({ a: 1, b: 2});
 		});
 
 		it("Extend from empty with two objects", function() {
-			expect.deepEqual(a$.extend({}); {a: 1, b: 2}); { a: 3}), {a: 3, b: 2});
+			expect(a$.extend({}, {a: 1, b: 2}, { a: 3})).toDeepEqual({a: 3, b: 2});
 		});
 
 		it("Extend from null", function() {
-			expect.deepEqual(a$.extend(null, {a: 1, b: 2}), {a: 1, b: 2});
+			expect(a$.extend(null, {a: 1, b: 2})).toDeepEqual({a: 1, b: 2});
 		});
 
 		it("Extend with an array", function() {
 			var o = a$.extend(null, [ 1, 2, 3]);
-			expect(o);
-			expect.deepEqual(o).toisArray([1, 2, 3]);
+			expect(Array.isArray(o)).toBe(true);
+			expect(o).toDeepEqual([1, 2, 3]);
 		});
 
 		it("Extending an array", function() {
-			expect.deepEqual(a$.extend([ 1, 2, 3], [4, 5, 6]), [4, 5, 6 ]);
+			expect(a$.extend([ 1, 2, 3], [4, 5, 6])).toDeepEqual([4, 5, 6 ]);
 		});
 
 		it("Extending a deep array", function() {
-			expect.deepEqual(a$.extend({ a: [ 1, 2, 3], b: 2}); { a: [4, 5, 6], b: [3, 4] }), { a: [4, 5, 6], b: [3, 4]});
+			expect(a$.extend({ a: [ 1, 2, 3], b: 2}, { a: [4, 5, 6], b: [3, 4] })).toDeepEqual({ a: [4, 5, 6], b: [3, 4]});
 		});
-		"Extend from non-empty object": function () {
-			expect.deepEqual(a$.extend({_: "" }); {a: 1, b: { ba: 5, bb: 6} }); { a: 3, c: 4, b: { ba: 5, bc: 7} } ), {_: "", a: 3, b: {ba: 5, bc: 7}); c: 4});
+		
+		it("Extend from non-empty object", function () {
+			expect(a$.extend({_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bc: 7} } )).toDeepEqual({_: "", a: 3, b: {ba: 5, bc: 7}, c: 4});
 		});
 
 		it("Extend deep", function() {
-			expect.deepEqual(a$.extend(true, {_: "" }); {a: 1, b: { ba: 5, bb: 6} }); { a: 3, c: 4, b: { ba: 5, bc: 7} } ), {_: "", a: 3, b: {ba: 5, bb: 6, bc: 7}); c: 4});
+			expect(a$.extend(true, {_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bc: 7} } )).toDeepEqual({_: "", a: 3, b: {ba: 5, bb: 6, bc: 7}, c: 4});
 		});
 
 		it("Extending with null object", function() {
-			expect.deepEqual(a$.extend(null, {a: 1, b: 2 }); null, { b: 3 }), {a: 1, b: 3});
+			expect(a$.extend(null, {a: 1, b: 2 }, null, { b: 3 })).toDeepEqual({a: 1, b: 3});
 		});
 
 		it("Mixing with two objects", function() {
-				expect.deepEqual(a$.mixin({}); {a: 1, b: 2}); { a: 3, c: 4}), {a: 1, b: 2, c: 4});
+				expect(a$.mixin({}, {a: 1, b: 2}, { a: 3, c: 4})).toDeepEqual({a: 1, b: 2, c: 4});
 		});
 
 		it("Mixing with three objects", function() {
-			expect.deepEqual(a$.mixin({}); {a: 1, b: 2}); { a: 3}), {a: 1, b: 2});
+			expect(a$.mixin({}, {a: 1, b: 2}, { a: 3})).toDeepEqual({a: 1, b: 2});
 		});
 
 		it("Mixing with deep object", function() {
-			expect.deepEqual(a$.mixin({}); {a: 1, b: { ba: 5, bb: 6} }); { a: 3, c: 4}), {a: 1, b: {ba: 5, bb: 6}); c: 4});
+			expect(a$.mixin({}, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4})).toDeepEqual({a: 1, b: {ba: 5, bb: 6}, c: 4});
 		});
-		"Mixing a non-empty object": function () {
-			expect.deepEqual(a$.mixin({_: "" }); {a: 1, b: { ba: 5, bb: 6} }); { a: 3, c: 4}), {_: "", a: 1, b: {ba: 5, bb: 6}); c: 4});
+		
+		it("Mixing a non-empty object", function () {
+			expect(a$.mixin({_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4})).toDeepEqual({_: "", a: 1, b: { ba: 5, bb: 6}, c: 4});
 		});
-		"Mixing a non-empty with deeper object": function () {
-			expect.deepEqual(a$.mixin({_: "" }); {a: 1, b: { ba: 5, bb: 6} }); { a: 3, c: 4, b: { ba: 5, bb: 6, bc: 7} } ), {_: "", a: 1, b: {ba: 5, bb: 6}); c: 4});
+		
+		it("Mixing a non-empty with deeper object", function () {
+			expect(a$.mixin({_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bb: 6, bc: 7} } )).toDeepEqual({_: "", a: 1, b: {ba: 5, bb: 6}, c: 4});
 		});
 
 		it("Mixing deep", function() {
-			expect.deepEqual(a$.mixin(true, {_: "" }); {a: 1, b: { ba: 5, bb: 6} }); { a: 3, c: 4, b: { ba: 5, bc: 7} } ), {_: "", a: 1, b: {ba: 5, bb: 6}); c: 4});
+			expect(a$.mixin(true, {_: "" },  {a: 1, b: { ba: 5, bb: 6} },  { a: 3, c: 4, b: { ba: 5, bc: 7} } )).toDeepEqual({_: "", a: 1, b: {ba: 5, bb: 6}, c: 4});
 		});
 
 		it("Getting common properties", function() {
-			expect.deepEqual(a$.common({ a: 1, b: 2, c: 3}); { b: 2, c: 4, d: 5}), { b: 2, c: 3 });
+			expect(a$.common({ a: 1, b: 2, c: 3},  { b: 2, c: 4, d: 5})).toDeepEqual({ b: 2, c: 3 });
 		});
 
 		it("Getting equal common properties", function() {
-			expect.deepEqual(a$.common(true, { a: 1, b: 2, c: 3}); { b: 2, c: 4, d: 5 }), { b: 2 });
+			expect(a$.common(true, { a: 1, b: 2, c: 3}, { b: 2, c: 4, d: 5 })).toDeepEqual({ b: 2 });
 		});
 
 		it("Getting commons from an array", function() {
-			expect.deepEqual(a$.common([1, 2, 3, 4], [3, 4, 5]), [3, 4]);
-		}
+			expect(a$.common([1, 2, 3, 4], [3, 4, 5])).toDeepEqual([3, 4]);
+		});
 	});
 
 	describe("Path based retrieval and manipulation", function() {
-		var topic =  { a: 1, b: 2, c: { ca: 3, cb: 4 } });
-		o = topic;
+		var o =  { a: 1, b: 2, c: { ca: 3, cb: 4 } };
+
 		it("Getting a value from a path in an agent", function() {
-			expect.equal(a$.path(o, "c.ca"), 3);
+			expect(a$.path(o, "c.ca")).toBe(3);
 		});
-		o = topic;
+
 		it("Setting a value with a path", function() {
 			a$.path(o, "c.cb", 5);
 			expect(o.c.cb).toBe(5);
 		});
-		o = topic;
+
 		it("Building a path when components are missing", function() {
 			a$.path(o, "c.cd", 7);
 			expect(o.c.cd).toBe(7);
 		});
-		o = topic;
+
 		it("Bulding a path from the root of the object", function() {
 			a$.path(o, "d.a.aa.aaa", 8);
-			expect(o.d).toEqual({ a: { aa: { aaa: 8 } } });
+			expect(o.d).toDeepEqual({ a: { aa: { aaa: 8 } } });
 		});
-		o = topic;
+
 		it("Passing the path as an array", function() {
-			expect.equal(a$.path(o, ['c', 'ca']), 3);
-		}
+			expect(a$.path(o, ['c', 'ca'])).toBe(3);
+		});
 	});
 
 	describe("Equality and similarity", function() {
 
 		it("Simple equal check", function() {
-			expect(a).toBe($.equal("0", "0")) ;
+			expect(a$.equal("0", "0")).toBe(true) ;
 		});
 
 		it("Type difference", function() {
-			expect(a).not.toBe($.equal({ a: 1, b: 2}); { a: "1", b: 2} ));
+			expect(a$.equal({ a: 1, b: 2}, { a: "1", b: 2} )).toBe(false);
 		});
 
 		it("Normal equal objects", function() {
-			expect(a).toBe($.equal({ a: 1, b: 2}); { a: 1, b: 2} ));      
+			expect(a$.equal({ a: 1, b: 2}, { a: 1, b: 2} )).toBe(true);
 		});
 
 		it("Equality for unequal but similar objects", function() {
-			expect(a).not.toBe($.equal({ a: 1, b: 2}); { a: 1, b: 2, c: 3} ));
+			expect(a$.equal({ a: 1, b: 2}, { a: 1, b: 2, c: 3} )).toBe(false);
 		});
 
 		it("Equality in depth", function() {
-			expect(a).toBe($.equal(true, { a: 1, b: { ba: "one" } }); { a: 1, b: { ba: "one" } } ));      
+			expect(a$.equal(true, { a: 1, b: { ba: "one" } }, { a: 1, b: { ba: "one" } } )).toBe(true);
 		});
 
 		it("Inequality in depth", function() {
-			expect(a).not.toBe($.equal(true, { a: 1, b: { ba: "one" } }); { a: 1, b: { ba: "two" } } ));      
+			expect(a$.equal(true, { a: 1, b: { ba: "one" } }, { a: 1, b: { ba: "two" } } )).toBe(false);
 		});
-		"Inequality in depth, but not in values": function () {
-			expect(a).not.toBe($.equal({ a: 1, b: { ba: "one" } }); { a: 1, b: { ba: "one" } } ));      
+		
+		it("Inequality in depth, but not in values", function () {
+			expect(a$.equal({ a: 1, b: { ba: "one" } }, { a: 1, b: { ba: "one" } } )).toBe(false);
 		});
 
 		it("Equality for simple types", function() {
-			expect(a).toBe($.equal("one", "one"));
+			expect(a$.equal("one", "one")).toBe(true);
 		});
 
 		it("Inequality for simple types", function() {
-			expect(a).not.toBe($.equal("1", 1));
+			expect(a$.equal("1", 1)).toBe(false);
 		});
 
 		it("Similarity for unequal but similar objects", function() {
-			expect(a).toBe($.similar({ a: 1, b: 2}); { a: 1, b: 2, c: 3} ));
+			expect(a$.similar({ a: 1, b: 2}, { a: 1, b: 2, c: 3} )).toBe(true);
 		});
 
 		it("Similarity for object with different value for same property", function() {
-			expect(a).not.toBe($.similar({ a: 1, b: 2}); { a: 1, b: 3, c: 3} ));
+			expect(a$.similar({ a: 1, b: 2}, { a: 1, b: 3, c: 3} )).toBe(false);
 		});
 
 		it("Similarity between number of its string", function() {
-			expect(a).toBe($.similar(1, "1"));
+			expect(a$.similar(1, "1")).toBe(true);
 		});
 
 		it("Similarity with regexp", function() {
-			expect(a).toBe($.similar("Another test string", /test/));
+			expect(a$.similar("Another test string", /test/)).toBe(true);
 		});
 
 		it("Weird similarity with regexp", function() {
-			expect(a).not.toBe($.similar({ a: "Another test string" }); /test/));
+			expect(a$.similar({ a: "Another test string" }, /test/)).toBe(false);
 		});
 
 		it("Similarity unmatchable", function() {
-			expect(a).not.toBe($.similar(/test/, "Without it"));
+			expect(a$.similar(/test/, "Without it")).toBe(false);
 		});
 
 		it("Similarity between object in depth", function() {
-			expect(a).toBe($.similar(true, {a: 1, b: { ba: "one" }}); { b: { ba: /n/ } }));
-		}
+			expect(a$.similar(true, {a: 1, b: { ba: "one" } }, { b: { ba: /n/ } })).toBe(true);
+		});
 	});
 
 	describe("Filtering and enumeration", function() {
@@ -258,7 +261,7 @@ describe("asSys", function () {
 
 		it("Simple iteration of an object", function() {
 			var sum = 0;
-			a$.each({ a: 1, b: 2, c: 3, d: 4, e: 5}); function (v) { sum += v; })
+			a$.each({ a: 1, b: 2, c: 3, d: 4, e: 5}, function (v) { sum += v; })
 			expect(sum).toBe(15);
 		});
 
@@ -269,119 +272,122 @@ describe("asSys", function () {
 		});
 
 		it("Filtering an array", function() {
-			expect.deepEqual(a$.filter([1, 2, 3, 4, 5], function (n) { return n < 4; }), [1, 2, 3]);
+			expect(a$.filter([1, 2, 3, 4, 5], function (n) { return n < 4; })).toDeepEqual([1, 2, 3]);
 		}); 
 
 		it("Filtering an object", function() {
-			expect.deepEqual(a$.filter({ one: 1, two: 2, three: 3, four: 4, five: 5}); function (v, k) { return k.match(/[of]/) && v < 3; }), { one: 1, two: 2 });
-		}
+			expect(a$.filter({ one: 1, two: 2, three: 3, four: 4, five: 5}, function (v, k) { return k.match(/[of]/) && v < 3; })).toDeepEqual({ one: 1, two: 2 });
+		});
 	});
 
-	"Agent simple characteristics:": {
+	describe("Agent simple characteristics:", function() {
 
 		it("Weight counting with simple object", function() {
-			expect.equal(a$.weight({ a: 1}), 1);
+			expect(a$.weight({ a: 1})).toBe(1);
 		});
 
 		it("Weight counting of a bigger object", function() {
-			expect.equal(a$.weight({ a: 1, b: 2}), 2);
+			expect(a$.weight({ a: 1, b: 2})).toBe(2);
 		});
 
 		it("Weight counting of an array", function() {
-			expect.equal(a$.weight([ 0, 1, 2]), 3);
+			expect(a$.weight([ 0, 1, 2])).toBe(3);
 		});
 
 		it("Weight counting of a string", function() {
-			expect.equal(a$.weight("string"), 1);
+			expect(a$.weight("string")).toBe(1);
 		});
 
 		it("Weight counting of a number", function() {
-			expect.equal(a$.weight(5), 1);
+			expect(a$.weight(5)).toBe(1);
 		});
 
 		it("Awareness for a property", function() {
-			expect(a).toBe($.aware({ a: 1}); 'a'));
+			expect(a$.aware({ a: 1}, 'a')).toBe(true);
 		});
 
 		it("Unawareness for a missing property", function() {
-			expect(a).not.toBe($.aware({ a: 1}); 'b'));
+			expect(a$.aware({ a: 1}, 'b')).toBe(false);
 		});
 
 		it("Awareness for a method", function() {
-			expect(a).toBe($.aware([], 'push'));
+			expect(a$.aware([], 'push')).toBe(true);
 		});
 
 		it("Ability to invoke a missing method check", function() {
-			expect(a).not.toBe($.can({ a: 1}); 'push'));
+			expect(a$.can({ a: 1}, 'push')).toBe(false);
 		});
 
 		it("Ability to invoke an existing method check", function() {
-			expect(a).toBe($.can([], 'push'));
+			expect(a$.can([], 'push')).toBe(true);
 		});
 
 		it("Ability to call custom method", function() {
-			expect(a).toBe($.can({ a: 1, push: function () { } }); 'push'));
-		}
+			expect(a$.can({ a: 1, push: function () { } }, 'push')).toBe(true);
+		});
+		
 	});
 
-	"Agent capabilities: ": {
+	describe("Agent capabilities: ", function () {
+	
 		describe("Single skills capabilities", function() {
-			var aa =  new (a$(SkillShow))("one"),
+			var aa =  new (a$(SkillShow))("one");
 
 			it("Custom skill check", function() {
-				expect(a).toBe($.capable(aa, SkillShow));
+				expect(a$.capable(aa, SkillShow)).toBe(true);
 			});
 
 			it("One skill check", function() {
-				expect(a).toBe($.capable(aa, true, SkillShow));
+				expect(a$.capable(aa, true, SkillShow)).toBe(true);
 			});
 
 			it("Two skills complete check", function() {
-				expect(a).not.toBe($.capable(aa, true, SkillShow, SkillChange));
+				expect(a$.capable(aa, true, SkillShow, SkillChange)).toBe(false);
 			});
 
 			it("Two skills partial check", function() {
-				expect(a).toBe($.capable(aa, false, SkillShow, SkillChange));
+				expect(a$.capable(aa, false, SkillShow, SkillChange)).toBe(true);
 			});
 
 			it("Awareness of methods", function() {
-				expect(a).toBe($.can(aa, "show"));
-				expect(a).not.toBe($.can(aa, "change"));
-			}
+				expect(a$.can(aa, "show")).toBe(true);
+				expect(a$.can(aa, "change")).toBe(false);
+			});
 		});
 	
 		describe("Dual skills capabilities", function() {
-			var aa =  new (a$(SkillShow, SkillChange))("one"),
+			var aa =  new (a$(SkillShow, SkillChange))("one");
 
 			it("Separate skill check", function() {
-				expect(a).toBe($.capable(aa, SkillShow));
-				expect(a).toBe($.capable(aa, SkillChange));
+				expect(a$.capable(aa, SkillShow)).toBe(true);
+				expect(a$.capable(aa, SkillChange)).toBe(true);
 			});
 
 			it("All skills check", function() {
-				expect(a).toBe($.capable(aa, true, SkillShow, SkillChange));
+				expect(a$.capable(aa, true, SkillShow, SkillChange)).toBe(true);
 			});
 
 			it("Awareness of combined methods", function() {
-				expect(a).toBe($.can(aa, "show"));
-				expect(a).toBe($.can(aa, "change"));
+				expect(a$.can(aa, "show")).toBe(true);
+				expect(a$.can(aa, "change")).toBe(true);
 			});
 
 			it("Workability of skills", function() {
 				aa.change("two");
 				expect(aa.show()).toBe("two");
-			}
-		}
+			});
+		});
 	});
+
 	describe("Agents grouping", function() {
-		var topic =  [ new (a$(SkillShow))("one"), new (a$(SkillChange)), new (a$(SkillShow, SkillChange))("me") ],
+		var topic =  [ new (a$(SkillShow))("one"), new (a$(SkillChange)), new (a$(SkillShow, SkillChange))("me") ];
 
 		it("Select skilled agensts", function() {
-			expect.equal(a$.group(topic, function (a) { return a$.capable(a, SkillShow); }).length, 2);
+			expect(a$.group(topic, function (a) { return a$.capable(a, SkillShow); }).length).toBe(2);
 		});
 
 		it("Existence of group methods", function() {
-			expect.isDefined(a$.group(topic, true, function (a) { return a$.capable(a, SkillShow); }).show);
+			expect(a$.group(topic, true, function (a) { return a$.capable(a, SkillShow); }).show).toBeDefined();
 		});
 
 		it("Invocation go group method", function() {
@@ -394,20 +400,20 @@ describe("asSys", function () {
 			g.change("our");
 			for (var p in g)
 				expect(g[p].value).toBe("our");
-		}
+		});
 	});
 
 	describe("Acting and broadcasting", function() {
-		var topic =  new (a$(SkillCombined))(1),
+		var topic =  new (a$(SkillCombined))(1);
 
 		it("Normal call of overriden activity", function() {
 			topic.step(2);
-			expect(a.value).toBe(5);
+			expect(topic.value).toBe(5);
 		});
 
 		it("Simple act on an agent", function() {
 			topic.value = 1;
-			expect.equal(a$.act(a, SkillShow.prototype.show), 1);
+			expect(a$.act(topic, SkillShow.prototype.show)).toBe(1);
 		});
 
 		it("Constructor act on an agent", function() {
@@ -428,6 +434,4 @@ describe("asSys", function () {
 			expect(topic.value).toBe(3);
 		});
 	});
-	
-	*/
 });
