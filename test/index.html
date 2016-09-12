@@ -7,30 +7,25 @@
 <!--<![endif]-->
 
 <head>
-<script src="../src/asSys.js"></script>
+<link rel="shortcut icon" type="image/png" href="../node_modules/jasmine-core/lib/jasmine-core/jasmine_favicon.png">
+<link rel="stylesheet" type="text/css" href="../node_modules/jasmine-core/lib/jasmine-core/jasmine.css">
 
-<script lang="JavaScript">
-  function SkillShow(a) { this.value = a; };
-  SkillShow.prototype.show = function () { return this.value; }
-  
-  function SkillChange() { };
-  SkillChange.prototype.change = function (a) { this.value = a; }
-  SkillChange.prototype.step = function (s) { this.value += s; }
-  
-  function SkillCombined() { };
-  SkillCombined.prototype.__expects = [ SkillShow, SkillChange ];
-  SkillCombined.prototype.combine = function (a, b) { this.value = a + b; }
-  SkillCombined.prototype.step = function (s) { this.value += s * s; }
-  
-  var SA = a$(SkillShow),
-      SC = a$(SkillShow, SkillChange);
-  
-  var aa = new SA("one"),
-      bb = new (a$(SkillChange)),
-      cc = new SC("me"),
-      pool = [ aa, bb, cc ];
-  
+<script type="text/javascript" src="../node_modules/jasmine-core/lib/jasmine-core/jasmine.js"></script>
+<script type="text/javascript" src="../node_modules/jasmine-core/lib/jasmine-core/jasmine-html.js"></script>
+<script type="text/javascript" src="../node_modules/jasmine-core/lib/jasmine-core/boot.js"></script>
+
+<script type="text/javascript" src="../as-sys.js"></script>
+<script type="text/javascript" src="../node_modules/underscore/underscore-min.js"></script>
+<script type="text/javascript">
+  var global = window;
+  function require(a) { 
+    if (a == "underscore" || a == "_")
+      return _;
+    else
+      return asSys;
+  }
 </script>
+<script type="text/javascript" src="asSysSpec.js"></script>
 </head>
 <html>
 </html>
