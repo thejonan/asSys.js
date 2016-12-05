@@ -59,10 +59,10 @@
       a = skills[i];
       if (typeof a === "function" && a.prototype !== undefined) {
         if (skillmap.indexOf(a) > -1) continue;
-        if (a.prototype.__expects != null) {
+        if (a.prototype.__depends != null) {
           missing = [ i, 0 ];
-          for (var s, j = 0, el = a.prototype.__expects.length; j < el; ++j) {
-            s = a.prototype.__expects[j];
+          for (var s, j = 0, el = a.prototype.__depends.length; j < el; ++j) {
+            s = a.prototype.__depends[j];
             if (skills.indexOf(s) == -1) missing.push(s);
           }
           if (missing.length > 2) {

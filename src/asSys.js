@@ -109,10 +109,10 @@
       	  continue;
       	  
       	// If it has dependencies
-      	if (a.prototype.__expects != null) {
+      	if (a.prototype.__depends != null) {
         	missing = [i, 0];
-        	for (var s, j = 0, el = a.prototype.__expects.length; j < el; ++j) {
-            s = a.prototype.__expects[j];
+        	for (var s, j = 0, el = a.prototype.__depends.length; j < el; ++j) {
+            s = a.prototype.__depends[j];
             if (skills.indexOf(s) == -1)
               missing.push(s);
           }
@@ -357,7 +357,7 @@
       catch (e) {
       }
     }
-    // Yes, otherwise we return `unefined` - fair enough
+    // Yes, otherwise we return `undefined` - fair enough
 	};
 	
 	/** Gets or sets the value at the agent, following the given path.
@@ -539,11 +539,6 @@
     this.asSys = asSys;
   }
   else { // Probably browser version...
-/*
-    if (this.jQuery && this.jQuery.extend)
-      asSys.extend = jQuery.extend;
-*/
-      
     this.asSys = this.a$ = asSys;
   }
 })();
