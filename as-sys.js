@@ -101,7 +101,7 @@
     });
     return A;
   };
-  asSys.version = "0.9.0";
+  asSys.version = "0.10.0";
   asSys.equal = function(deepCompare) {
     var deep = deepCompare, start = 0, match = function(a, b, dig) {
       if (typeof a !== "object" || typeof b !== "object") return a === b; else if (dig !== false) {
