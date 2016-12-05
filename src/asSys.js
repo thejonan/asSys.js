@@ -86,6 +86,7 @@
     */
 	var asSys = function () {
   	var skillmap = [],
+  	    expected = null,
   	    missing,
   	    skills = Array.prototype.slice.call(arguments, 0),
   	    A = function () {
@@ -126,7 +127,15 @@
           }
         }
         
-        // Ok, we don't have expectations that are not met - merge the prototypes
+        // Or it has expectations
+        if (a.prototype.__expects != null) {
+          if (expected == null)
+            expected = {};
+          for (var j = 0, el = a.prototype.__expects.length; j < el; ++j)
+            expected[a.prototype.__expects[j]] = true;
+        }
+        
+        // Ok, we don't have dependencies that are not met - merge the prototypes
         // Invoke the initialization for it and add this skill to agent's.
       	skillmap.push(a);
       	if (A.prototype === undefined)
@@ -143,6 +152,15 @@
         }
       }
     }
+    
+    // Now check whether the prototype built has all the expected methods
+    asSys.each(expected, function (v, m) {
+      if (A.prototype[m] == null)
+        throw { name: "Unmatched skill expectation", 
+                message: "The expected method [" + m + "] was not found among provided skills.",
+                method: m 
+                };
+    });
     
     Object.defineProperties(A.prototype, { __skills: { enumerable: false, writable: false, value: skillmap } });
     return A;

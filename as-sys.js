@@ -45,7 +45,7 @@
     return true;
   };
   var asSys = function() {
-    var skillmap = [], missing, skills = Array.prototype.slice.call(arguments, 0), A = function() {
+    var skillmap = [], expected = null, missing, skills = Array.prototype.slice.call(arguments, 0), A = function() {
       var agent = this, args = arguments;
       if (!agent.__initializing) {
         agent.__initializing = true;
@@ -71,6 +71,10 @@
             continue;
           }
         }
+        if (a.prototype.__expects != null) {
+          if (expected == null) expected = {};
+          for (var j = 0, el = a.prototype.__expects.length; j < el; ++j) expected[a.prototype.__expects[j]] = true;
+        }
         skillmap.push(a);
         if (A.prototype === undefined) A.prototype = Object.create(a.prototype); else mergeObjects(true, false, 0, [ A.prototype, a.prototype ]);
         if (a.prototype.__skills !== undefined) {
@@ -81,6 +85,13 @@
         }
       }
     }
+    asSys.each(expected, function(v, m) {
+      if (A.prototype[m] == null) throw {
+        name: "Unmatched skill expectation",
+        message: "The expected method [" + m + "] was not found among provided skills.",
+        method: m
+      };
+    });
     Object.defineProperties(A.prototype, {
       __skills: {
         enumerable: false,

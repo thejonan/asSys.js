@@ -23,6 +23,10 @@ SkillCombined.prototype.__depends = [ SkillShow, SkillChange ];
 SkillCombined.prototype.combine = function (a, b) { this.value = a + b; }
 SkillCombined.prototype.step = function (s) { this.value += s * s; }
 
+function SkillDemanding() { };
+SkillDemanding.prototype.__expects = [ "show", "own" ];
+SkillDemanding.prototype.own = function () { };
+
 describe("asSys", function () {
 	// prepare the test for dual runs - browser & npm
 	beforeEach(function () {
@@ -53,11 +57,27 @@ describe("asSys", function () {
 			expect(a$.mimic(topic).value).toBeUndefined();
 		});
 
-		it("Respecting the expected skills", function() {
+		it("Respecting the dependent skills", function() {
 			var o = new (a$(SkillCombined));
 			expect(o.show).toBeDefined();
 			expect(o.change).toBeDefined();
 			expect(o.combine).toBeDefined();
+		});
+
+		it("Reporting missing expected methods", function() {
+  		try {
+			  var o = new (a$(SkillDemanding));
+			  expect(true).toBeFalsy();
+		  }
+		  catch (e) {
+  		  expect(e.method).toBe("show");
+		  }
+		});
+
+		it("Noticing expected methods", function() {
+		  var o = new (a$(SkillShow, SkillDemanding));
+		  expect(o.show).toNotBe(null);
+		  expect(o.own).toNotBe(null);
 		});
 
 		it("Using own methods when there are expected skills", function() {
