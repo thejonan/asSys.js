@@ -3,10 +3,8 @@
     var props = {}, a, keys;
     for (var i = start, al = arguments.length; i < al; ++i) {
       a = arguments[i];
-      if( (typeof a === "object") && (a !== null) ){
-        keys = Object.keys(a);
-        for (var j = 0, kl = keys.length; j < kl; ++j) props[keys[j]] = true;
-      }
+      keys = Object.keys(a);
+      for (var j = 0, kl = keys.length; j < kl; ++j) props[keys[j]] = true;
     }
     return props;
   };
@@ -103,7 +101,7 @@
     });
     return A;
   };
-  asSys.version = "0.10.0";
+  asSys.version = "0.10.1";
   asSys.equal = function(deepCompare) {
     var deep = deepCompare, start = 0, match = function(a, b, dig) {
       if (typeof a !== "object" || typeof b !== "object") return a === b; else if (dig !== false) {
