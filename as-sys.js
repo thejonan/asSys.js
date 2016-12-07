@@ -3,8 +3,10 @@
     var props = {}, a, keys;
     for (var i = start, al = arguments.length; i < al; ++i) {
       a = arguments[i];
-      keys = Object.keys(a);
-      for (var j = 0, kl = keys.length; j < kl; ++j) props[keys[j]] = true;
+      if( (typeof a === "object") && (a !== null) ){
+        keys = Object.keys(a);
+        for (var j = 0, kl = keys.length; j < kl; ++j) props[keys[j]] = true;
+      }
     }
     return props;
   };
