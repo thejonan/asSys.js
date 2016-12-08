@@ -1,6 +1,6 @@
 {
   "name": "as-sys",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "description": "An Agent-Skills (i.e. Entity-Attribute) System JavaScript library.",
   "keywords": [
     "agent",
@@ -49,7 +49,7 @@
   "scripts": {
     "pretest": "rm -f as-sys.js as-sys.min.js as-sys.js.zip && export VERSION=`node -e 'console.log(require(\"./package.json\").version)'` && sed -E -e \"s/\\{\\{VERSION\\}\\}/$VERSION/\" src/asSys.js | uglifyjs -b indent-level=2 -o as-sys.js",
     "test": "jasmine-node test && uglifyjs -nc -mt < as-sys.js > as-sys.min.js",
-    "posttest": "mkdir -p test/lib/jasmine-core && cp -f node_modules/jasmine-core/lib/jasmine-core/*.js test/lib/jasmine-core && cp -f node_modules/jasmine-core/lib/jasmine-core/*.css test/lib/jasmine-core && mkdir -p test/lib/underscore && cp -f node_modules/underscore/*.js test/lib/underscore",
+    "posttest": "rsync node_modules/jasmine-core/lib/jasmine-core/*.js test/libs && rsync node_modules/jasmine-core/lib/jasmine-core/*.css test/libs && rsync node_modules/underscore/*.js test/libs",
 
     "prepublish": "npm test && chmod a-w as-sys.js as-sys.min.js && zip as-sys.js.zip LICENSE as-sys.js as-sys.min.js",
     "postpublish": "VERSION=`node -e 'console.log(require(\"./package.json\").version)'`; git push && git tag -am \"Release $VERSION.\" ${VERSION} && git push --tags"

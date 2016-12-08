@@ -105,6 +105,12 @@
   	for (var i = 0, a; i < skills.length; ++i) {
     	a = skills[i];
     	
+    	if (a == null)
+        throw { name: "Missing skill", 
+          message: "The skill-set liseted [" + a + "] is missing.",
+          skill: s 
+          };
+
     	// We've come to a skill reference.
     	if (typeof a === 'function' && a.prototype !== undefined) {
       	if (skillmap.indexOf(a) > -1)
@@ -157,7 +163,7 @@
     // Now check whether the prototype built has all the expected methods
     asSys.each(expected, function (v, m) {
       if (A.prototype[m] == null)
-        throw { name: "Unmatched skill expectation", 
+        throw { name: "Unmatched expectation", 
                 message: "The expected method [" + m + "] was not found among provided skills.",
                 method: m 
                 };

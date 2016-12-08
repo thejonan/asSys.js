@@ -63,6 +63,21 @@ describe("asSys", function () {
 			expect(o.change).toBeDefined();
 			expect(o.combine).toBeDefined();
 		});
+		
+		it("Signaling on missing skill", function() {
+  		var failed = false;
+  		try {
+  			var o = new (a$(null));
+  		}
+  		catch (o) {
+    		failed = true;
+    		expect(o.name).toBe("Missing skill");
+    		expect(o.message).toBeDefined();
+    		expect(o.skill).toBeUndefined();
+  		}
+  		
+			expect(failed).toBeTruthy();
+		});		
 
 		it("Reporting missing expected methods", function() {
   		try {
@@ -76,8 +91,8 @@ describe("asSys", function () {
 
 		it("Noticing expected methods", function() {
 		  var o = new (a$(SkillShow, SkillDemanding));
-		  expect(o.show).toNotBe(null);
-		  expect(o.own).toNotBe(null);
+		  expect(o.show).toBeDefined();
+		  expect(o.own).toBeDefined();
 		});
 
 		it("Using own methods when there are expected skills", function() {
