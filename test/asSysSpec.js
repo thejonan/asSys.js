@@ -301,6 +301,13 @@ describe("asSys", function () {
 		it("Filtering an object", function() {
 			expect(a$.filter({ one: 1, two: 2, three: 3, four: 4, five: 5}, function (v, k) { return k.match(/[of]/) && v < 3; })).toEqual({ one: 1, two: 2 });
 		});
+		
+		it ("Finds the index of an element in array", function () {
+  		var arr = ["a", "b", "c"];
+  		expect(a$.findIndex(arr, "a")).toBe(0);
+  		expect(a$.findIndex(arr, "x")).toBe(-1);
+  		expect(a$.findIndex(arr, function (e) { return e == "b"})).toBe(1);
+		});
 	});
 
 	describe("Agent simple characteristics:", function() {

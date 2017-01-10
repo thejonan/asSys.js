@@ -345,6 +345,23 @@
     }
 	};
 	
+	/** Finds the index of an element in the array. Uses native
+  	* implementetion, if possible.
+  	*/
+  	
+  asSys.findIndex = function (arr, needle) {
+    if (typeof needle !== "function")
+      return arr.indexOf(needle);
+    else if (typeof arr.findIndex === "function")
+      return arr.findIndex(needle);
+      
+    for (var i = 0, al = arr.length;i < al.length; ++i)
+      if (!!needle.call(arr[i], arr[i], i))
+        return i;
+      
+    return -1;
+  };
+  	
   /** Calculates the number of properties in the agent. 
     * If `length` property exists and is a number, it is returned. 
     * Non objects are considered to weight 1.
