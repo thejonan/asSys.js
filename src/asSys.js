@@ -44,7 +44,7 @@
               
             if (target[p] !== undefined && newonly)
               continue;
-            else if (!deep || typeof src[p] !== 'object' || !src.hasOwnProperty(p) || !copyEnabled(src[p]))
+            else if (!deep || typeof src[p] !== 'object' || src[p] instanceof RegExp || !src.hasOwnProperty(p) || !copyEnabled(src[p]))
               target[p] = src[p];
             // it is pretty annoying not being able to detect copability of src[p].
             // Still, it is better to have the exception handling here, because

@@ -1,6 +1,6 @@
 {
   "name": "as-sys",
-  "version": "0.10.2",
+  "version": "0.10.3",
   "description": "An Agent-Skills (i.e. Entity-Attribute) System JavaScript library.",
   "keywords": [
     "agent",
@@ -43,8 +43,7 @@
   "devDependencies": {
     "uglify-js": "latest",
     "jasmine-node": "latest",
-    "jasmine-core": "latest",
-    "underscore": "latest"
+    "jasmine-core": "latest"
   },
   "scripts": {
     "pretest": "rm -f as-sys.js as-sys.min.js as-sys.js.zip && export VERSION=`node -e 'console.log(require(\"./package.json\").version)'` && sed -E -e \"s/\\{\\{VERSION\\}\\}/$VERSION/\" src/asSys.js | uglifyjs -b indent-level=2 -o as-sys.js",

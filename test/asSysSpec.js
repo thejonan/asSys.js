@@ -1,14 +1,4 @@
-var a$ = require("../"),
-		_ = require("underscore"),
-		customMatchers = {
-			toDeepEqual: function (util, customEqualityTesters) {
-				return {
-					compare: function(actual, expected) {
-							return { pass: _.isEqual(actual, expected) };
-					}
-				}
-			}
-		};
+var a$ = require("../");
 
 
 function SkillShow(a) { this.value = a; };
@@ -28,12 +18,6 @@ SkillDemanding.prototype.__expects = [ "show", "own" ];
 SkillDemanding.prototype.own = function () { };
 
 describe("asSys", function () {
-	// prepare the test for dual runs - browser & npm
-	beforeEach(function () {
-		var jself = typeof this.addMatchers === 'function' ? this : jasmine;
-		jself.addMatchers(customMatchers);
-	});
-
 	// Now - GO with the tests.
 	var topic =  new (a$(SkillShow))("one");
 
@@ -118,77 +102,81 @@ describe("asSys", function () {
 	describe("Extending, mixing", function () {
 
 		it("Extend empty object", function() {
-			expect(a$.extend({}, {a: 1, b: 2})).toDeepEqual({ a: 1, b: 2});
+			expect(a$.extend({}, {a: 1, b: 2})).toEqual({ a: 1, b: 2});
 		});
 
 		it("Extend from empty with two objects", function() {
-			expect(a$.extend({}, {a: 1, b: 2}, { a: 3})).toDeepEqual({a: 3, b: 2});
+			expect(a$.extend({}, {a: 1, b: 2}, { a: 3})).toEqual({a: 3, b: 2});
 		});
 
 		it("Extend from null", function() {
-			expect(a$.extend(null, {a: 1, b: 2})).toDeepEqual({a: 1, b: 2});
+			expect(a$.extend(null, {a: 1, b: 2})).toEqual({a: 1, b: 2});
 		});
 
 		it("Extend with an array", function() {
 			var o = a$.extend(null, [ 1, 2, 3]);
 			expect(Array.isArray(o)).toBe(true);
-			expect(o).toDeepEqual([1, 2, 3]);
+			expect(o).toEqual([1, 2, 3]);
 		});
 
 		it("Extending an array", function() {
-			expect(a$.extend([ 1, 2, 3], [4, 5, 6])).toDeepEqual([4, 5, 6 ]);
+			expect(a$.extend([ 1, 2, 3], [4, 5, 6])).toEqual([4, 5, 6 ]);
 		});
 
 		it("Extending a deep array", function() {
-			expect(a$.extend({ a: [ 1, 2, 3], b: 2}, { a: [4, 5, 6], b: [3, 4] })).toDeepEqual({ a: [4, 5, 6], b: [3, 4]});
+			expect(a$.extend({ a: [ 1, 2, 3], b: 2}, { a: [4, 5, 6], b: [3, 4] })).toEqual({ a: [4, 5, 6], b: [3, 4]});
 		});
 		
 		it("Extend from non-empty object", function () {
-			expect(a$.extend({_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bc: 7} } )).toDeepEqual({_: "", a: 3, b: {ba: 5, bc: 7}, c: 4});
+			expect(a$.extend({_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bc: 7} } )).toEqual({_: "", a: 3, b: {ba: 5, bc: 7}, c: 4});
 		});
 
 		it("Extend deep", function() {
-			expect(a$.extend(true, {_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bc: 7} } )).toDeepEqual({_: "", a: 3, b: {ba: 5, bb: 6, bc: 7}, c: 4});
+			expect(a$.extend(true, {_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bc: 7} } )).toEqual({_: "", a: 3, b: {ba: 5, bb: 6, bc: 7}, c: 4});
 		});
 
 		it("Extending with null object", function() {
-			expect(a$.extend(null, {a: 1, b: 2 }, null, { b: 3 })).toDeepEqual({a: 1, b: 3});
+			expect(a$.extend(null, {a: 1, b: 2 }, null, { b: 3 })).toEqual({a: 1, b: 3});
+		});
+		
+		it ("Extends RegExp properly", function () {
+  		expect(a$.extend(true, {}, { a: 1 }, { b: /Test/ })).toEqual({ a: 1, b: /Test/ });
 		});
 
 		it("Mixing with two objects", function() {
-				expect(a$.mixin({}, {a: 1, b: 2}, { a: 3, c: 4})).toDeepEqual({a: 1, b: 2, c: 4});
+				expect(a$.mixin({}, {a: 1, b: 2}, { a: 3, c: 4})).toEqual({a: 1, b: 2, c: 4});
 		});
 
 		it("Mixing with three objects", function() {
-			expect(a$.mixin({}, {a: 1, b: 2}, { a: 3})).toDeepEqual({a: 1, b: 2});
+			expect(a$.mixin({}, {a: 1, b: 2}, { a: 3})).toEqual({a: 1, b: 2});
 		});
 
 		it("Mixing with deep object", function() {
-			expect(a$.mixin({}, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4})).toDeepEqual({a: 1, b: {ba: 5, bb: 6}, c: 4});
+			expect(a$.mixin({}, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4})).toEqual({a: 1, b: {ba: 5, bb: 6}, c: 4});
 		});
 		
 		it("Mixing a non-empty object", function () {
-			expect(a$.mixin({_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4})).toDeepEqual({_: "", a: 1, b: { ba: 5, bb: 6}, c: 4});
+			expect(a$.mixin({_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4})).toEqual({_: "", a: 1, b: { ba: 5, bb: 6}, c: 4});
 		});
 		
 		it("Mixing a non-empty with deeper object", function () {
-			expect(a$.mixin({_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bb: 6, bc: 7} } )).toDeepEqual({_: "", a: 1, b: {ba: 5, bb: 6}, c: 4});
+			expect(a$.mixin({_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bb: 6, bc: 7} } )).toEqual({_: "", a: 1, b: {ba: 5, bb: 6}, c: 4});
 		});
 
 		it("Mixing deep", function() {
-			expect(a$.mixin(true, {_: "" },  {a: 1, b: { ba: 5, bb: 6} },  { a: 3, c: 4, b: { ba: 5, bc: 7} } )).toDeepEqual({_: "", a: 1, b: {ba: 5, bb: 6}, c: 4});
+			expect(a$.mixin(true, {_: "" },  {a: 1, b: { ba: 5, bb: 6} },  { a: 3, c: 4, b: { ba: 5, bc: 7} } )).toEqual({_: "", a: 1, b: {ba: 5, bb: 6}, c: 4});
 		});
 
 		it("Getting common properties", function() {
-			expect(a$.common({ a: 1, b: 2, c: 3},  { b: 2, c: 4, d: 5})).toDeepEqual({ b: 2, c: 3 });
+			expect(a$.common({ a: 1, b: 2, c: 3},  { b: 2, c: 4, d: 5})).toEqual({ b: 2, c: 3 });
 		});
 
 		it("Getting equal common properties", function() {
-			expect(a$.common(true, { a: 1, b: 2, c: 3}, { b: 2, c: 4, d: 5 })).toDeepEqual({ b: 2 });
+			expect(a$.common(true, { a: 1, b: 2, c: 3}, { b: 2, c: 4, d: 5 })).toEqual({ b: 2 });
 		});
 
 		it("Getting commons from an array", function() {
-			expect(a$.common([1, 2, 3, 4], [3, 4, 5])).toDeepEqual([3, 4]);
+			expect(a$.common([1, 2, 3, 4], [3, 4, 5])).toEqual([3, 4]);
 		});
 	});
 
@@ -211,7 +199,7 @@ describe("asSys", function () {
 
 		it("Bulding a path from the root of the object", function() {
 			a$.path(o, "d.a.aa.aaa", 8);
-			expect(o.d).toDeepEqual({ a: { aa: { aaa: 8 } } });
+			expect(o.d).toEqual({ a: { aa: { aaa: 8 } } });
 		});
 
 		it("Passing the path as an array", function() {
@@ -307,11 +295,11 @@ describe("asSys", function () {
 		});
 
 		it("Filtering an array", function() {
-			expect(a$.filter([1, 2, 3, 4, 5], function (n) { return n < 4; })).toDeepEqual([1, 2, 3]);
+			expect(a$.filter([1, 2, 3, 4, 5], function (n) { return n < 4; })).toEqual([1, 2, 3]);
 		}); 
 
 		it("Filtering an object", function() {
-			expect(a$.filter({ one: 1, two: 2, three: 3, four: 4, five: 5}, function (v, k) { return k.match(/[of]/) && v < 3; })).toDeepEqual({ one: 1, two: 2 });
+			expect(a$.filter({ one: 1, two: 2, three: 3, four: 4, five: 5}, function (v, k) { return k.match(/[of]/) && v < 3; })).toEqual({ one: 1, two: 2 });
 		});
 	});
 
