@@ -108,7 +108,7 @@
     });
     return A;
   };
-  asSys.version = "0.11.0";
+  asSys.version = "0.12.0";
   asSys.equal = function(deepCompare) {
     var deep = deepCompare, start = 0, match = function(a, b, dig) {
       if (typeof a !== "object" || typeof b !== "object") return a === b; else if (dig !== false) {
@@ -203,6 +203,9 @@
         return agent.constructor.apply(o, Array.prototype.slice(arguments, 1)) || o;
       } catch (e) {}
     }
+  };
+  asSys.escapeRegExp = function(str) {
+    return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
   };
   asSys.path = function(agent, path, value) {
     if (path == null) return;

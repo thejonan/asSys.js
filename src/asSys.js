@@ -402,6 +402,12 @@
     // Yes, otherwise we return `undefined` - fair enough
 	};
 	
+	/** Escape a string to be used as a RegExp definition
+  	*/
+  asSys.escapeRegExp = function (str) {
+    return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+  };
+   	
 	/** Gets or sets the value at the agent, following the given path.
   	* If we're setting the value, the missing component along the way
   	* will be created.
