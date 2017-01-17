@@ -234,7 +234,8 @@
     return twinScan(arguments, start, match);
 	};
 	
-  /** Extract the properties which are common for all arguments
+  /** Extract the properties which are common for all arguments. All enumerable
+    * properties of an object are taken into account - own and prototype-deriven.
     *
     * Complexity: o(<number of object> * <number of properties>).
     */
@@ -258,7 +259,7 @@
             if (res == null)
               res = {};
             for (var p in a) {
-              if (b.hasOwnProperty(p) && (!eq || a[p] == b[p]))
+              if (b[p] !== undefined && (!eq || a[p] == b[p]))
                 res[p] = a[p];
             }
           }
