@@ -20,8 +20,8 @@
             !agent.nodeType;
   };
   
-  var mergeObjects = function (deep, newonly, i, objects) {
-    if (!deep && !newonly && typeof Object.assign === 'function') {
+  var mergeObjects = function (deep, mode, i, objects) {
+    if (!deep && mode === "all" && typeof Object.assign === 'function') {
       for (;objects[i] == null;++i);
       return Object.assign.apply(Object, i == 0 ? objects : Array.prototype.slice.call(objects, i));
     }
@@ -42,7 +42,7 @@
             if (target[p] === src[p])
               continue;
               
-            if (target[p] !== undefined && newonly)
+            if (mode !== "all" && !(target[p] === undefined ^ mode === "old"))
               continue;
             else if (!deep || typeof src[p] !== 'object' || src[p] instanceof RegExp || !src.hasOwnProperty(p) || !copyEnabled(src[p]))
               target[p] = src[p];
@@ -148,7 +148,7 @@
       	if (A.prototype === undefined)
       	  A.prototype = Object.create(a.prototype);
         else
-          mergeObjects(true, false, 0, [ A.prototype, a.prototype ])
+          mergeObjects(true, "all", 0, [ A.prototype, a.prototype ])
           
         if (a.prototype.__skills !== undefined) {
           for (var j = 0, ssl = a.prototype.__skills.length, ss; j < ssl; ++j ) {
@@ -287,10 +287,10 @@
 		else
 		  start = 1;
     
-    return mergeObjects(d, false, start, arguments);
+    return mergeObjects(d, "all", start, arguments);
 	};
 	
-  /** Merges the new properties from given objects into the first one.
+  /** Merges only the new properties from given objects into the first one.
     *
     * Complexity: o(<number of properties> * <number of objects>).
     */
@@ -302,9 +302,24 @@
 		else
 		  start = 1;
     
-    return mergeObjects(d, true, start, arguments);
+    return mergeObjects(d, "new", start, arguments);
 	};
 	
+  /** Merges only the common properties from given objects into the first one.
+    *
+    * Complexity: o(<number of properties> * <number of objects>).
+    */
+	asSys.update = function (deep /*, objects */) {
+  	var d = deep,
+  	    start = 0;
+		if (typeof d !== 'boolean')
+			d = false;
+		else
+		  start = 1;
+    
+    return mergeObjects(d, "old", start, arguments);
+	};
+		
 	/** Filters the properties, leaving only those which get `true` from the selector
   	*
   	* Complexity: o(<number of own properties>)
@@ -545,7 +560,7 @@
 			
 			// Get this done, only if we're interested to use it afterwards...
 			if (full)
-			  mergeObjects(false, false, 0, [ skills, Object.getPrototypeOf(e) ]);
+			  mergeObjects(false, "all", 0, [ skills, Object.getPrototypeOf(e) ]);
 			  
 			res.push(e);
 		}

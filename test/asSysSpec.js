@@ -167,6 +167,30 @@ describe("asSys", function () {
 			expect(a$.mixin(true, {_: "" },  {a: 1, b: { ba: 5, bb: 6} },  { a: 3, c: 4, b: { ba: 5, bc: 7} } )).toEqual({_: "", a: 1, b: {ba: 5, bb: 6}, c: 4});
 		});
 
+		it("Updating on an empty objects", function() {
+				expect(a$.update({}, {a: 1, b: 2}, { a: 3, c: 4})).toEqual({ });
+		});
+		
+		it("Updating to a null", function () {
+			expect(a$.update(null, { a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4})).toBeNull();
+		});		
+				
+		it("Updating with two objects", function() {
+				expect(a$.update({a: 1, b: 2}, { a: 3, c: 4})).toEqual({a: 3, b: 2});
+		});
+
+		it("Updating with three objects", function() {
+			expect(a$.update({a: 1, b: 2}, { a: 3})).toEqual({a: 3, b: 2});
+		});
+
+		it("Updating with deep object", function() {
+			expect(a$.update({a: 1, b: { ba: 5, bb: 6} }, { a: 3, b: 4, c: 5})).toEqual({ a: 3, b: 4 });
+		});
+				
+		it("Updating deep", function() {
+			expect(a$.update(true, {a: 1, b: { ba: 5, bb: 6} },  { a: 3, c: 4, b: { ba: 7, bc: 8 } } )).toEqual({ a: 3, b: {ba: 7, bb: 6} } );
+		});
+
 		it("Getting common properties", function() {
 			expect(a$.common({ a: 1, b: 2, c: 3},  { b: 2, c: 4, d: 5})).toEqual({ b: 2, c: 3 });
 		});
