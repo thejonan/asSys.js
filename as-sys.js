@@ -216,7 +216,8 @@
     if (path == null) return;
     if (!Array.isArray(path)) {
       try {
-        if (value === undefined) eval("value = agent." + path); else eval("agent." + path + " = value");
+        var pref = (path[0] != "[" ? "agent." : "agent") + path;
+        if (value === undefined) eval("value = " + pref); else eval(pref + " = value");
         return value;
       } catch (e) {
         path = path.split(".");

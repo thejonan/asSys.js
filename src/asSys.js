@@ -435,10 +435,12 @@
       
     if (!Array.isArray(path)) {
       try {
+        var pref = (path[0] != '[' ? "agent." : "agent") + path;
+          
         if (value === undefined)
-          eval("value = agent." + path);
+          eval("value = " + pref);
         else
-          eval("agent." + path + " = value");
+          eval(pref + " = value");
           
         return value;
       }

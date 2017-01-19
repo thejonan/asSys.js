@@ -229,6 +229,12 @@ describe("asSys", function () {
 		it("Passing the path as an array", function() {
 			expect(a$.path(o, ['c', 'ca'])).toBe(3);
 		});
+		
+		it ("Successfully retrieves with indices in the path", function () {
+  		var arr = [ { a: 1, b: 2}, { a: 3, c: { cc: 5, cd: 6 } } ];
+			expect(a$.path(arr, "[0].b")).toBe(2);
+			expect(a$.path(arr, "[1].c")).toEqual({ cc: 5, cd: 6 });
+		});
 	});
 
 	describe("Equality and similarity", function() {
