@@ -476,6 +476,11 @@ describe("asSys", function () {
 			expect(a$.act(topic, SkillShow.prototype.show)).toBe(1);
 		});
 
+		it("String activity acting", function() {
+			topic.value = 1;
+			expect(a$.act(topic, "show")).toBe(1);
+		});
+
 		it("Constructor act on an agent", function() {
 			topic.value = 1; // We need to RESET the value from previous test...
 			a$.act(topic, SkillShow, 2);

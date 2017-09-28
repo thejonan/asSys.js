@@ -464,7 +464,11 @@
   	* Complexity: o(1)
   	*/
 	asSys.act = function (agent, activity /*, arguments */) {
-  	if (agent != null && typeof activity === 'function') {
+  	if (agent == null)
+  	  return;
+    if (typeof activity === 'string')
+      activity = agent[activity];
+  	if (typeof activity === 'function') {
   		return activity.apply(agent, Array.prototype.slice.call(arguments, 2));
   	}
 	};
