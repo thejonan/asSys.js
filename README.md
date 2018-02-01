@@ -5,9 +5,9 @@
 
 Traditional [Object Oriented Programming](https://en.wikipedia.org/wiki/Object-oriented_programming) has the inherent problem of enforcing tree-like distribution of functionality among active entities, which are the _instances of different classes_. A _class_ is wrapping of certain functionality, which is made accessible to the _"agent"_ in the memory, when an instance of this class, or any descendent, is created. This is limiting. If you need to have three types of instances:
 
-* `Humans` which are capable of walking;
-* `Planes` which are capable of flying;
-* `Birds` which are capable of both flying and walking;
+* `Humans` which are capable of **walking**;
+* `Planes` which are capable of **flying**;
+* `Birds` which are capable of both **flying** and **walking**;
 
 You can inherit **walking** in _Birds_ from _Humans_, but then you'll need to have separate implementation of **flying** for _Planes_. Alternatively, you can inherit **flying** in _Birds_ from _Planes_, but then **walking** should be re-implemented in _Humans_. In either scenario one _skill_ should be implemented twice. Multiple inheritance, found nowhere but in C++ is quite complicated solution, neither being recommended, nor actually solving many of the problems (e.g. - sharing of properties between different classes, in the same entity).
 
@@ -54,7 +54,7 @@ Of course, we haven't added too much, because we could freely do it this way:
 var aGuy = new Walking();
 ```
 
-It's the same. But, let's see how a _Birds_ are defined:
+It's the same. But, let's see how _Birds_ are defined:
 
 ```javascript
 var Birds = a$(Walking, Flying);
@@ -66,16 +66,18 @@ Now, that is different. Again new actual birds are instantiated this way:
 var aFalcon = new Birds();
 ```
 
-And, of course, creating and instantiating a _Planes_ is no more difficult:
+And, of course, creating and instantiating _Planes_ is no more difficult:
 
 ```javascript
 var Planes = a$(Flying);
 var aJumbo = new Planes();
 ```
 
-In this example `Planes`, `Birds` and `Humans` are dynamically constructed _functions_ which (upon instantiation) invoke all the passed _skills_'s constructors (i.e. funtions) in the same order, in which they are given. For example `Birds` is a function, that invokes `Walking()` and then `Flying()`.
+In this example `Planes`, `Birds` and `Humans` are dynamically constructed _functions_ which (upon instantiation) invoke all the passed _skills_'s constructors (i.e. functions) in the same order, in which they are given. For example `Birds` is a function, that invokes `Walking()` then `Flying()`.
 
-The above functionality can easily be achieved with C++ multiple-inheritance as well. Let's define the basic skills a bit differently:
+The above functionality can easily be achieved with C++ multiple-inheritance as well. 
+
+Let's define the basic skills a bit differently:
 
 ```javascript
 var Flying = function () { this.isFlying = false; }
@@ -143,7 +145,7 @@ Walking.prototype = {
 
 ```
 
-Now, there will be an error again, but this time it'll happen in these (type of) likes:
+Now, there will be an error again, but this time it'll happen in these (type of) lines:
 
 ```javascript
 var Humans = a$(Walking);
@@ -153,12 +155,14 @@ _asSys_ will report missing expectation. So, listing a skill that provides it, i
 
 ```javascript
 var Being = function () { }
-Thing.prototype.wakeUp = function () { this.isMoving = true; }
+Being.prototype.wakeUp = function () { this.isMoving = true; }
 
 var Humans = a$(Being, Walking);
 var aGuy = new Humans();
 aGuy.go();
 ```
+
+
 
 ## Performance
 
