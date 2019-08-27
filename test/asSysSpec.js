@@ -1,4 +1,5 @@
-var a$ = require("../");
+var _ = require("lodash"),
+	a$ = require("../");
 
 function SkillShow(a) { this.value = a; };
 SkillShow.prototype.show = function () { return this.value; }
@@ -50,7 +51,7 @@ describe("asSys", function () {
 		it("Signaling on missing skill", function() {
   		var failed = false;
   		try {
-  			var o = new (a$(null));
+  			var o = new (a$("NonExistentSkill"));
   		}
   		catch (o) {
     		failed = true;
@@ -106,46 +107,6 @@ describe("asSys", function () {
 
 		it("Getting equal common properties", function() {
 			expect(a$.common(true, { a: 1, b: 2, c: 3}, { b: 2, c: 4, d: 5 })).toEqual({ b: 2 });
-		});
-
-		it("Getting commons from an array", function() {
-			expect(a$.common([1, 2, 3, 4], [3, 4, 5])).toEqual([3, 4]);
-		});
-	});
-
-	describe("Path based retrieval and manipulation", function() {
-		it("Getting a value from a path in an agent", function() {
-			var o =  { a: 1, b: 2, c: { ca: 3, cb: 4 } };
-			expect(a$.path(o, "c.ca")).toBe(3);
-		});
-
-		it("Setting a value with a path", function() {
-			var o =  { a: 1, b: 2, c: { ca: 3, cb: 4 } };
-			a$.path(o, "c.cb", 5);
-			expect(o.c.cb).toBe(5);
-		});
-
-		it("Building a path when components are missing", function() {
-			var o =  { a: 1, b: 2, c: { ca: 3, cb: 4 } };
-			a$.path(o, "c.cd", 7);
-			expect(o.c.cd).toBe(7);
-		});
-
-		it("Bulding a path from the root of the object", function() {
-			var o =  { a: 1, b: 2, c: { ca: 3, cb: 4 } };
-			a$.path(o, "d.a.aa.aaa", 8);
-			expect(o.d).toEqual({ a: { aa: { aaa: 8 } } });
-		});
-
-		it("Passing the path as an array", function() {
-			var o =  { a: 1, b: 2, c: { ca: 3, cb: 4 } };
-			expect(a$.path(o, ['c', 'ca'])).toBe(3);
-		});
-		
-		it ("Successfully retrieves with indices in the path", function () {
-  		var arr = [ { a: 1, b: 2}, { a: 3, c: { cc: 5, cd: 6 } } ];
-			expect(a$.path(arr, "[0].b")).toBe(2);
-			expect(a$.path(arr, "[1].c")).toEqual({ cc: 5, cd: 6 });
 		});
 	});
 
@@ -309,6 +270,22 @@ describe("asSys", function () {
 				expect(aa.show()).toBe("two");
 			});
 		});
+
+		describe("Generic object capabilities", function () {
+			it("Normally allocated object capabilities", function () {
+				var aa = new SkillShow("one");
+
+				expect(a$.capable(aa, SkillShow)).toBe(true);
+				expect(a$.capable(aa, SkillChange)).toBe(false);
+			});
+
+			it("Manually assembled object capabilities", function () {
+				var aa = _.assignIn({}, SkillShow.prototype, SkillChange.prototype);
+
+				expect(a$.capable(aa, SkillChange)).toBe(true);
+				expect(a$.capable(aa, SkillCombined)).toBe(false);
+			});
+		});
 	});
 
 	describe("Agents grouping", function() {
@@ -338,6 +315,7 @@ describe("asSys", function () {
 					new (a$(SkillShow, SkillChange))("me")], 
 				true, 
 				function (a) { return a$.capable(a, SkillShow); });
+			expect(gr.length).toBe(2);
 			expect(gr.show()).toBe("me"); // i.e. the latest one
 		});
 
@@ -349,6 +327,7 @@ describe("asSys", function () {
 				true, 
 				function (a) { return a$.capable(a, SkillChange); }
 			);
+			expect(gr.length).toBe(2);
 			gr.change("our");
 			for (var p in gr)
 				expect(gr[p].value).toBe("our");
