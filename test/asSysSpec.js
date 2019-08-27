@@ -1,6 +1,5 @@
 var a$ = require("../");
 
-
 function SkillShow(a) { this.value = a; };
 SkillShow.prototype.show = function () { return this.value; }
 
@@ -17,8 +16,8 @@ function SkillDemanding() { };
 SkillDemanding.prototype.__expects = [ "show", "own" ];
 SkillDemanding.prototype.own = function () { };
 
+// Now - GO with the tests.
 describe("asSys", function () {
-	// Now - GO with the tests.
 	var topic =  new (a$(SkillShow))("one");
 
 	// #1 set.
@@ -32,13 +31,13 @@ describe("asSys", function () {
 			expect(topic.__skills.indexOf(SkillShow) > -1).toBe(true);
 		});
 
-		it("Mimicing a native type", function() {
-			expect(Array.isArray(a$.mimic([]))).toBe(true);
+		it("Cloning a native type", function() {
+			expect(Array.isArray(a$.clone([]))).toBe(true);
 		});
 
-		it("Emptiness of mimiced object", function() {
-			expect(a$.mimic([1, 2, 3]).length).toBe(0);
-			expect(a$.mimic(topic).value).toBeUndefined();
+		it("Emptiness of cloned object", function() {
+			expect(a$.clone([1, 2, 3]).length).toBe(0);
+			expect(a$.clone(topic).value).toBeUndefined();
 		});
 
 		it("Respecting the dependent skills", function() {
@@ -99,97 +98,7 @@ describe("asSys", function () {
 		});
 	});
 
-	describe("Extending, mixing", function () {
-
-		it("Extend empty object", function() {
-			expect(a$.extend({}, {a: 1, b: 2})).toEqual({ a: 1, b: 2});
-		});
-
-		it("Extend from empty with two objects", function() {
-			expect(a$.extend({}, {a: 1, b: 2}, { a: 3})).toEqual({a: 3, b: 2});
-		});
-
-		it("Extend from null", function() {
-			expect(a$.extend(null, {a: 1, b: 2})).toEqual({a: 1, b: 2});
-		});
-
-		it("Extend with an array", function() {
-			var o = a$.extend(null, [ 1, 2, 3]);
-			expect(Array.isArray(o)).toBe(true);
-			expect(o).toEqual([1, 2, 3]);
-		});
-
-		it("Extending an array", function() {
-			expect(a$.extend([ 1, 2, 3], [4, 5, 6])).toEqual([4, 5, 6 ]);
-		});
-
-		it("Extending a deep array", function() {
-			expect(a$.extend({ a: [ 1, 2, 3], b: 2}, { a: [4, 5, 6], b: [3, 4] })).toEqual({ a: [4, 5, 6], b: [3, 4]});
-		});
-		
-		it("Extend from non-empty object", function () {
-			expect(a$.extend({_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bc: 7} } )).toEqual({_: "", a: 3, b: {ba: 5, bc: 7}, c: 4});
-		});
-
-		it("Extend deep", function() {
-			expect(a$.extend(true, {_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bc: 7} } )).toEqual({_: "", a: 3, b: {ba: 5, bb: 6, bc: 7}, c: 4});
-		});
-
-		it("Extending with null object", function() {
-			expect(a$.extend(null, {a: 1, b: 2 }, null, { b: 3 })).toEqual({a: 1, b: 3});
-		});
-		
-		it ("Extends RegExp properly", function () {
-  		expect(a$.extend(true, {}, { a: 1 }, { b: /Test/ })).toEqual({ a: 1, b: /Test/ });
-		});
-
-		it("Mixing with two objects", function() {
-				expect(a$.mixin({}, {a: 1, b: 2}, { a: 3, c: 4})).toEqual({a: 1, b: 2, c: 4});
-		});
-
-		it("Mixing with three objects", function() {
-			expect(a$.mixin({}, {a: 1, b: 2}, { a: 3})).toEqual({a: 1, b: 2});
-		});
-
-		it("Mixing with deep object", function() {
-			expect(a$.mixin({}, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4})).toEqual({a: 1, b: {ba: 5, bb: 6}, c: 4});
-		});
-		
-		it("Mixing a non-empty object", function () {
-			expect(a$.mixin({_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4})).toEqual({_: "", a: 1, b: { ba: 5, bb: 6}, c: 4});
-		});
-		
-		it("Mixing a non-empty with deeper object", function () {
-			expect(a$.mixin({_: "" }, {a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4, b: { ba: 5, bb: 6, bc: 7} } )).toEqual({_: "", a: 1, b: {ba: 5, bb: 6}, c: 4});
-		});
-
-		it("Mixing deep", function() {
-			expect(a$.mixin(true, {_: "" },  {a: 1, b: { ba: 5, bb: 6} },  { a: 3, c: 4, b: { ba: 5, bc: 7} } )).toEqual({_: "", a: 1, b: {ba: 5, bb: 6}, c: 4});
-		});
-
-		it("Updating on an empty objects", function() {
-				expect(a$.update({}, {a: 1, b: 2}, { a: 3, c: 4})).toEqual({ });
-		});
-		
-		it("Updating to a null", function () {
-			expect(a$.update(null, { a: 1, b: { ba: 5, bb: 6} }, { a: 3, c: 4})).toBeNull();
-		});		
-				
-		it("Updating with two objects", function() {
-				expect(a$.update({a: 1, b: 2}, { a: 3, c: 4})).toEqual({a: 3, b: 2});
-		});
-
-		it("Updating with three objects", function() {
-			expect(a$.update({a: 1, b: 2}, { a: 3})).toEqual({a: 3, b: 2});
-		});
-
-		it("Updating with deep object", function() {
-			expect(a$.update({a: 1, b: { ba: 5, bb: 6} }, { a: 3, b: 4, c: 5})).toEqual({ a: 3, b: 4 });
-		});
-				
-		it("Updating deep", function() {
-			expect(a$.update(true, {a: 1, b: { ba: 5, bb: 6} },  { a: 3, c: 4, b: { ba: 7, bc: 8 } } )).toEqual({ a: 3, b: {ba: 7, bb: 6} } );
-		});
+	describe("Working with (deep) properties", function () {
 
 		it("Getting common properties", function() {
 			expect(a$.common({ a: 1, b: 2, c: 3},  { b: 2, c: 4, d: 5})).toEqual({ b: 2, c: 3 });
@@ -205,28 +114,31 @@ describe("asSys", function () {
 	});
 
 	describe("Path based retrieval and manipulation", function() {
-		var o =  { a: 1, b: 2, c: { ca: 3, cb: 4 } };
-
 		it("Getting a value from a path in an agent", function() {
+			var o =  { a: 1, b: 2, c: { ca: 3, cb: 4 } };
 			expect(a$.path(o, "c.ca")).toBe(3);
 		});
 
 		it("Setting a value with a path", function() {
+			var o =  { a: 1, b: 2, c: { ca: 3, cb: 4 } };
 			a$.path(o, "c.cb", 5);
 			expect(o.c.cb).toBe(5);
 		});
 
 		it("Building a path when components are missing", function() {
+			var o =  { a: 1, b: 2, c: { ca: 3, cb: 4 } };
 			a$.path(o, "c.cd", 7);
 			expect(o.c.cd).toBe(7);
 		});
 
 		it("Bulding a path from the root of the object", function() {
+			var o =  { a: 1, b: 2, c: { ca: 3, cb: 4 } };
 			a$.path(o, "d.a.aa.aaa", 8);
 			expect(o.d).toEqual({ a: { aa: { aaa: 8 } } });
 		});
 
 		it("Passing the path as an array", function() {
+			var o =  { a: 1, b: 2, c: { ca: 3, cb: 4 } };
 			expect(a$.path(o, ['c', 'ca'])).toBe(3);
 		});
 		
@@ -256,17 +168,13 @@ describe("asSys", function () {
 		});
 
 		it("Equality in depth", function() {
-			expect(a$.equal(true, { a: 1, b: { ba: "one" } }, { a: 1, b: { ba: "one" } } )).toBe(true);
+			expect(a$.equal({ a: 1, b: { ba: "one" } }, { a: 1, b: { ba: "one" } } )).toBe(true);
 		});
 
 		it("Inequality in depth", function() {
-			expect(a$.equal(true, { a: 1, b: { ba: "one" } }, { a: 1, b: { ba: "two" } } )).toBe(false);
+			expect(a$.equal({ a: 1, b: { ba: "one" } }, { a: 1, b: { ba: "two" } } )).toBe(false);
 		});
 		
-		it("Inequality in depth, but not in values", function () {
-			expect(a$.equal({ a: 1, b: { ba: "one" } }, { a: 1, b: { ba: "one" } } )).toBe(false);
-		});
-
 		it("Equality for simple types", function() {
 			expect(a$.equal("one", "one")).toBe(true);
 		});
@@ -300,43 +208,7 @@ describe("asSys", function () {
 		});
 
 		it("Similarity between object in depth", function() {
-			expect(a$.similar(true, {a: 1, b: { ba: "one" } }, { b: { ba: /n/ } })).toBe(true);
-		});
-	});
-
-	describe("Filtering and enumeration", function() {
-
-		it("Simple iteration on array", function() {
-			var sum = 0;
-			a$.each([1, 2, 3, 4, 5], function (n) { sum += n; })
-			expect(sum).toBe(15);
-		});
-
-		it("Simple iteration of an object", function() {
-			var sum = 0;
-			a$.each({ a: 1, b: 2, c: 3, d: 4, e: 5}, function (v) { sum += v; })
-			expect(sum).toBe(15);
-		});
-
-		it("Enumerate a plain object", function() {
-			var val = null;
-			a$.each("one", function (v) { val = v; });
-			expect(val).toBe("one");
-		});
-
-		it("Filtering an array", function() {
-			expect(a$.filter([1, 2, 3, 4, 5], function (n) { return n < 4; })).toEqual([1, 2, 3]);
-		}); 
-
-		it("Filtering an object", function() {
-			expect(a$.filter({ one: 1, two: 2, three: 3, four: 4, five: 5}, function (v, k) { return k.match(/[of]/) && v < 3; })).toEqual({ one: 1, two: 2 });
-		});
-		
-		it ("Finds the index of an element in array", function () {
-  		var arr = ["a", "b", "c"];
-  		expect(a$.findIndex(arr, "a")).toBe(0);
-  		expect(a$.findIndex(arr, "x")).toBe(-1);
-  		expect(a$.findIndex(arr, function (e) { return e == "b"})).toBe(1);
+			expect(a$.similar({a: 1, b: { ba: "one" } }, { b: { ba: /n/ } })).toBe(true);
 		});
 	});
 
@@ -440,63 +312,82 @@ describe("asSys", function () {
 	});
 
 	describe("Agents grouping", function() {
-		var topic =  [ new (a$(SkillShow))("one"), new (a$(SkillChange)), new (a$(SkillShow, SkillChange))("me") ];
-
 		it("Select skilled agensts", function() {
-			expect(a$.group(topic, function (a) { return a$.capable(a, SkillShow); }).length).toBe(2);
+			var gr =  [
+				new (a$(SkillShow))("one"), 
+				new (a$(SkillChange)), 
+				new (a$(SkillShow, SkillChange))("me") ];
+
+			expect(a$.group(gr, function (a) { return a$.capable(a, SkillShow); }).length).toBe(2);
 		});
 
 		it("Existence of group methods", function() {
-			expect(a$.group(topic, true, function (a) { return a$.capable(a, SkillShow); }).show).toBeDefined();
+			var gr =  [
+				new (a$(SkillShow))("one"), 
+				new (a$(SkillChange)), 
+				new (a$(SkillShow, SkillChange))("me") 
+			];
+
+			expect(a$.group(gr, true, function (a) { return a$.capable(a, SkillShow); }).show).toBeDefined();
 		});
 
 		it("Invocation go group method", function() {
-			var g = a$.group(topic, true, function (a) { return a$.capable(a, SkillShow); });
-			expect(g.show()).toBe("me"); // i.e. the latest one
+			var gr = a$.group([
+					new (a$(SkillShow))("one"), 
+					new (a$(SkillChange)), 
+					new (a$(SkillShow, SkillChange))("me")], 
+				true, 
+				function (a) { return a$.capable(a, SkillShow); });
+			expect(gr.show()).toBe("me"); // i.e. the latest one
 		});
 
 		it("Invocation of modifying method", function() {
-			var g = a$.group(topic, true, function (a) { return a$.capable(a, SkillChange); });
-			g.change("our");
-			for (var p in g)
-				expect(g[p].value).toBe("our");
+			var gr = a$.group([
+					new (a$(SkillShow))("one"), 
+					new (a$(SkillChange)), 
+					new (a$(SkillShow, SkillChange))("me") ], 
+				true, 
+				function (a) { return a$.capable(a, SkillChange); }
+			);
+			gr.change("our");
+			for (var p in gr)
+				expect(gr[p].value).toBe("our");
 		});
 	});
 
 	describe("Acting and broadcasting", function() {
-		var topic =  new (a$(SkillCombined))(1);
-
 		it("Normal call of overriden activity", function() {
-			topic.step(2);
-			expect(topic.value).toBe(5);
+			var o =  new (a$(SkillCombined))(1);
+			o.step(2);
+			expect(o.value).toBe(5);
 		});
 
 		it("Simple act on an agent", function() {
-			topic.value = 1;
-			expect(a$.act(topic, SkillShow.prototype.show)).toBe(1);
+			var o =  new (a$(SkillCombined))(1);
+			expect(a$.act(o, SkillShow.prototype.show)).toBe(1);
 		});
 
 		it("String activity acting", function() {
-			topic.value = 1;
-			expect(a$.act(topic, "show")).toBe(1);
+			var o =  new (a$(SkillCombined))(1);
+			expect(a$.act(o, "show")).toBe(1);
 		});
 
 		it("Constructor act on an agent", function() {
-			topic.value = 1; // We need to RESET the value from previous test...
-			a$.act(topic, SkillShow, 2);
-			expect(topic.show()).toBe(2);
+			var o =  new (a$(SkillCombined))(1);
+			a$.act(o, SkillShow, 2);
+			expect(o.show()).toBe(2);
 		});
 
 		it("Broadcast to all skills", function() {
-			topic.value = 1;
-			a$.broadcast(topic, 'step', 2);
-			expect(topic.value).toBe(7);
+			var o =  new (a$(SkillCombined))(1);
+			a$.broadcast(o, 'step', 2);
+			expect(o.value).toBe(7);
 		});
 	
 		it("Pass to super's activity", function () {
-			topic.value = 1;
-			a$.pass(topic, SkillCombined, 'step', 2);
-			expect(topic.value).toBe(3);
+			var o =  new (a$(SkillCombined))(1);
+			a$.pass(o, SkillCombined, 'step', 2);
+			expect(o.value).toBe(3);
 		});
 	});
 });

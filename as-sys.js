@@ -1,57 +1,44 @@
-(function() {
-  var extractProps = function(start) {
-    var props = {}, a, keys;
-    for (var i = start, al = arguments.length; i < al; ++i) {
-      a = arguments[i];
-      if (typeof a === "object" && a !== null) {
-        keys = Object.keys(a);
-        for (var j = 0, kl = keys.length; j < kl; ++j) props[keys[j]] = true;
+(function(global, factory) {
+  typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory(require("lodash/core")) : typeof define === "function" && define.amd ? define([ "lodash/core" ], factory) : (global = global || self, 
+  global.asSys = factory(global._));
+})(this, function(_) {
+  "use strict";
+  var eachObj = !!_ && typeof _.each === "function" ? _.each : $.each;
+  var mergeObjs = !!_ && typeof _.extend === "function" ? _.extend : $.extend;
+  var equalObjs = !!_ && typeof _.equal === "function" ? _.equal : function(a, b) {
+    if (typeof a !== "object" || typeof b !== "object") return a === b; else {
+      var testedProps = {};
+      for (var p in a) {
+        if (!a.hasOwnProperty(p)) continue;
+        if (!b.hasOwnProperty(p) || !equalObjs(a[p], b[p])) return false;
+        testedProps[p] = true;
       }
-    }
-    return props;
-  };
-  var copyEnabled = function(agent) {
-    return agent != null && typeof agent === "object" && typeof agent.constructor === "function" && !agent.nodeType;
-  };
-  var mergeObjects = function(deep, mode, i, objects) {
-    if (!deep && mode === "all" && typeof Object.assign === "function") {
-      for (;objects[i] == null; ++i) ;
-      return Object.assign.apply(Object, i == 0 ? objects : Array.prototype.slice.call(objects, i));
-    }
-    var obj = objects[i], ol = objects.length, merge = function(target, src) {
-      if (src == null) return; else if (target == null) {
-        target = src;
-        return;
-      }
-      for (var p in src) {
-        if (target[p] === src[p]) continue;
-        if (mode !== "all" && !(target[p] === undefined ^ mode === "old")) continue; else if (!deep || typeof src[p] !== "object" || src[p] instanceof RegExp || !src.hasOwnProperty(p) || !copyEnabled(src[p])) target[p] = src[p]; else try {
-          if (target[p] == null) target[p] = asSys.mimic(src[p]);
-          merge(target[p], src[p]);
-        } catch (e) {
-          target[p] = src[p];
-        }
-      }
-    };
-    while (++i < ol) merge(obj, objects[i]);
-    return obj;
-  };
-  var twinScan = function(arr, start, callback) {
-    var ai, j;
-    for (var i = start, al = arr.length; i < al; ++i) {
-      ai = arr[i];
-      for (j = i + 1; j < al; ++j) {
-        if (callback(ai, arr[j]) === false) return false;
+      for (var p in b) {
+        if (testedProps[p] || !b.hasOwnProperty(p)) continue;
+        if (!a.hasOwnProperty(p) || !equalObjs(a[p], b[p])) return false;
       }
     }
     return true;
   };
-  var asSys = function() {
+  var similarObjs = function(a, b) {
+    if (a instanceof RegExp) return typeof b === "string" && b.match(a) != null; else if (b instanceof RegExp) return typeof a === "string" && a.match(b) != null; else if (typeof a !== "object" || typeof b !== "object") return a == b; else for (var p in a) {
+      if (!a.hasOwnProperty(p)) continue;
+      if (b.hasOwnProperty(p) && !similarObjs(a[p], b[p])) return false;
+    }
+    return true;
+  };
+  var multiScan = function(arr, callback) {
+    if (arr.length < 2) return true;
+    var a0 = arr[0];
+    for (var i = 1, al = arr.length; i < al; ++i) if (callback(a0, arr[i]) === false) return false;
+    return true;
+  };
+  var a$ = function() {
     var skillmap = [], expected = null, missing, skills = Array.prototype.slice.call(arguments, 0), A = function() {
       var agent = this, args = arguments;
       if (!agent.__initializing) {
         agent.__initializing = true;
-        asSys.each(agent.__skills, function(s) {
+        eachObj(agent.__skills, function(s) {
           s.apply(agent, args);
         });
         delete agent.__initializing;
@@ -66,7 +53,7 @@
       };
       if (typeof a === "function" && a.prototype !== undefined) {
         if (skillmap.indexOf(a) > -1) continue;
-        if (a.prototype.__depends != null) {
+        if (!!a.prototype.__depends) {
           missing = [ i, 0 ];
           for (var s, j = 0, el = a.prototype.__depends.length; j < el; ++j) {
             s = a.prototype.__depends[j];
@@ -79,11 +66,11 @@
           }
         }
         if (a.prototype.__expects != null) {
-          if (expected == null) expected = {};
+          if (!expected) expected = {};
           for (var j = 0, el = a.prototype.__expects.length; j < el; ++j) expected[a.prototype.__expects[j]] = true;
         }
         skillmap.push(a);
-        if (A.prototype === undefined) A.prototype = Object.create(a.prototype); else mergeObjects(true, "all", 0, [ A.prototype, a.prototype ]);
+        if (A.prototype === undefined) A.prototype = Object.create(a.prototype); else mergeObjs(A.prototype, a.prototype);
         if (a.prototype.__skills !== undefined) {
           for (var j = 0, ssl = a.prototype.__skills.length, ss; j < ssl; ++j) {
             ss = a.prototype.__skills[j];
@@ -92,8 +79,8 @@
         }
       }
     }
-    asSys.each(expected, function(v, m) {
-      if (A.prototype[m] == null) throw {
+    eachObj(expected, function(v, m) {
+      if (!A.prototype[m]) throw {
         name: "Unmatched expectation",
         message: "The expected method [" + m + "] was not found among provided skills.",
         method: m
@@ -108,33 +95,14 @@
     });
     return A;
   };
-  asSys.version = "0.13.3";
-  asSys.equal = function(deepCompare) {
-    var deep = deepCompare, start = 0, match = function(a, b, dig) {
-      if (typeof a !== "object" || typeof b !== "object") return a === b; else if (dig !== false) {
-        for (var p in extractProps(0, a, b)) {
-          if (!match(a[p], b[p], deep)) return false;
-        }
-        return true;
-      }
-    };
-    if (typeof deep !== "boolean") deep = false; else start = 1;
-    return twinScan(arguments, start, match);
+  a$.VERSION = "1.0.0";
+  a$.equal = function() {
+    return multiScan(arguments, equalObjs);
   };
-  asSys.similar = function(deepCompare) {
-    var deep = deepCompare, start = 0;
-    match = function(a, b, dig) {
-      if (a instanceof RegExp) return typeof b === "string" && b.match(a) != null; else if (b instanceof RegExp) return typeof a === "string" && a.match(b) != null; else if (typeof a !== "object" || typeof b !== "object") return a == b; else if (dig !== false) {
-        for (var p in a) {
-          if (b[p] !== undefined && !match(a[p], b[p], deep)) return false;
-        }
-        return true;
-      }
-    };
-    if (typeof deep !== "boolean") deep = false; else start = 1;
-    return twinScan(arguments, start, match);
+  a$.similar = function() {
+    return multiScan(arguments, similarObjs);
   };
-  asSys.common = function(equal) {
+  a$.common = function(equal) {
     var eq = equal, idx = 0, res = null, argl = arguments.length, extract = function(a, b) {
       if (Array.isArray(a) && Array.isArray(b)) {
         if (res == null) res = [];
@@ -152,67 +120,19 @@
     while (++idx < argl) extract(res == null ? arguments[idx - 1] : res, arguments[idx]);
     return res;
   };
-  asSys.extend = function(deep) {
-    var d = deep, start = 0;
-    if (typeof d !== "boolean") d = false; else start = 1;
-    return mergeObjects(d, "all", start, arguments);
-  };
-  asSys.mixin = function(deep) {
-    var d = deep, start = 0;
-    if (typeof d !== "boolean") d = false; else start = 1;
-    return mergeObjects(d, "new", start, arguments);
-  };
-  asSys.update = function(deep) {
-    var d = deep, start = 0;
-    if (typeof d !== "boolean") d = false; else start = 1;
-    return mergeObjects(d, "old", start, arguments);
-  };
-  asSys.filter = function(agent, selector) {
-    if (typeof agent.filter === "function") return agent.filter(selector);
-    var res = asSys.mimic(agent), p, keys = Object.keys(agent);
-    for (var i = 0, kl = keys.length; i < kl; ++i) {
-      p = keys[i];
-      if (selector(agent[p], p, agent)) res[p] = agent[p];
-    }
-    return res;
-  };
-  asSys.each = function(agent, actor) {
-    if (agent == null) ; else if (typeof agent.forEach === "function") agent.forEach(actor); else if (typeof agent !== "object") {
-      actor(agent);
-    } else {
-      var k = Object.keys(agent), p;
-      for (var i = 0, kl = k.length; i < kl; ++i) {
-        p = k[i];
-        actor(agent[p], p, agent);
-      }
-    }
-  };
-  asSys.findIndex = function(arr, needle) {
-    if (typeof needle !== "function") return arr.indexOf(needle); else if (typeof arr.findIndex === "function") return arr.findIndex(needle);
-    for (var i = 0, al = arr.length; i < al.length; ++i) if (!!needle.call(arr[i], arr[i], i)) return i;
-    return -1;
-  };
-  asSys.weight = function(agent) {
+  a$.weight = function(agent) {
     if (typeof agent !== "object") return 1; else if (agent.hasOwnProperty("length") && typeof agent.length == "number") return agent.length; else return Object.keys(agent).length;
   };
-  asSys.name = function(fn) {
-    if (typeof fn !== "function") return skill.toString(); else if (fn.name !== undefined) return fn.name; else {
-      var s = fn.toString().match(/function ([^\(]+)/);
-      return s != null ? s[1] : "";
-    }
+  a$.clone = function(agent) {
+    var o = Object.create(Object.getPrototypeOf(agent));
+    try {
+      return agent.constructor.apply(o, Array.prototype.slice(arguments, 1)) || o;
+    } catch (e) {}
   };
-  asSys.mimic = function(agent) {
-    if (copyEnabled(agent)) {
-      var o = Object.create(Object.getPrototypeOf(agent));
-      try {
-        return agent.constructor.apply(o, Array.prototype.slice(arguments, 1)) || o;
-      } catch (e) {}
-    }
-  };
-  asSys.escapeRegExp = function(str) {
+  a$.escapeRegExp = function(str) {
     return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
   };
-  asSys.path = function(agent, path, value) {
+  a$.path = function(agent, path, value) {
     if (path == null) return;
     if (!Array.isArray(path)) {
       try {
@@ -227,57 +147,55 @@
     if (value !== undefined) agent[path[i]] = value; else value = agent[path[i]];
     return value;
   };
-  asSys.act = function(agent, activity) {
+  a$.act = function(agent, activity) {
     if (agent == null) return;
     if (typeof activity === "string") activity = agent[activity];
     if (typeof activity === "function") {
       return activity.apply(agent, Array.prototype.slice.call(arguments, 2));
     }
   };
-  asSys.broadcast = function(agent, activity) {
+  a$.broadcast = function(agent, activity) {
     var args = Array.prototype.slice.call(arguments, 2);
-    asSys.each(agent.__skills, function(s) {
+    eachObj(agent.__skills, function(s) {
       if (typeof s.prototype[activity] === "function") s.prototype[activity].apply(agent, args);
     });
     return agent;
   };
-  asSys.pass = function(agent, skill, activity) {
+  a$.pass = function(agent, skill, activity) {
     var i = agent.__skills && agent.__skills.indexOf(skill), s;
-    if (i > -1) {
-      while (--i >= 0) {
-        s = agent.__skills[i];
-        if (typeof s.prototype[activity] === "function") return s.prototype[activity].apply(agent, Array.prototype.slice.call(arguments, 3));
-      }
+    while (--i >= 0) {
+      s = agent.__skills[i];
+      if (typeof s.prototype[activity] === "function") return s.prototype[activity].apply(agent, Array.prototype.slice.call(arguments, 3));
     }
   };
-  asSys.can = function(agent, activity) {
-    return typeof agent === "object" && agent[activity] != null && typeof agent[activity] === "function";
+  a$.can = function(agent, activity) {
+    return typeof agent === "object" && typeof agent[activity] === "function";
   };
-  asSys.aware = function(agent, prop) {
+  a$.aware = function(agent, prop) {
     return typeof agent === "object" && agent[prop] !== undefined;
   };
-  asSys.capable = function(agent, allskills) {
+  a$.capable = function(agent, allskills) {
     var all = allskills, s, w, proto = Object.getPrototypeOf(agent), i = 1;
     if (typeof all !== "boolean") all = true; else i = 2;
     for (var cnt = 0, start = i, al = arguments.length; i < al; ++i) {
       s = arguments[i];
       if (agent instanceof s) ++cnt; else {
-        w = asSys.weight(s.prototype);
-        if (w > 0 && asSys.weight(asSys.common(true, proto, s.prototype)) == w) ++cnt;
+        w = a$.weight(s.prototype);
+        if (w > 0 && a$.weight(a$.common(true, proto, s.prototype)) == w) ++cnt;
       }
     }
     return cnt > 0 && (all ? arguments.length - start == cnt : true);
   };
-  asSys.group = function(pool, full, selector) {
+  a$.group = function(pool, full, selector) {
     if (typeof full !== "boolean") {
       selector = full;
       full = false;
     }
-    var res = this.mimic(pool), skills = {}, e;
+    var res = this.clone(pool), skills = {}, e;
     for (var k in pool) {
       var e = pool[k];
       if (!selector.call(e, e, k, pool)) continue;
-      if (full) mergeObjects(false, "all", 0, [ skills, Object.getPrototypeOf(e) ]);
+      if (full) mergeObjs(skills, Object.getPrototypeOf(e));
       res.push(e);
     }
     if (full) {
@@ -303,10 +221,5 @@
     }
     return res;
   };
-  if (typeof module === "object" && module && typeof module.exports === "object") module.exports = asSys; else if (typeof define === "function" && define.amd) {
-    define(asSys);
-    this.asSys = asSys;
-  } else {
-    this.asSys = this.a$ = asSys;
-  }
-})();
+  return a$;
+});
