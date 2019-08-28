@@ -1,4 +1,5 @@
 var _ = require("lodash"),
+	benchmark = require("benchmark"),
 	a$ = require("../");
 
 function SkillShow(a) { this.value = a; };
@@ -94,7 +95,7 @@ describe("asSys", function () {
 
 		it("Use an already crafted skill as reference", function() {
 			var s = a$(SkillShow),
-					o = new (a$(s))("recursive");
+				o = new (a$(s))("recursive");
 			expect(o.show()).toBe("recursive");
 		});
 	});
@@ -280,7 +281,7 @@ describe("asSys", function () {
 			});
 
 			it("Manually assembled object capabilities", function () {
-				var aa = _.assignIn({}, SkillShow.prototype, SkillChange.prototype);
+				var aa = _.extend({}, SkillShow.prototype, SkillChange.prototype);
 
 				expect(a$.capable(aa, SkillChange)).toBe(true);
 				expect(a$.capable(aa, SkillCombined)).toBe(false);
@@ -346,7 +347,7 @@ describe("asSys", function () {
 			expect(a$.act(o, SkillShow.prototype.show)).toBe(1);
 		});
 
-		it("String activity acting", function() {
+		it("String method acting", function() {
 			var o =  new (a$(SkillCombined))(1);
 			expect(a$.act(o, "show")).toBe(1);
 		});
@@ -368,5 +369,52 @@ describe("asSys", function () {
 			a$.pass(o, SkillCombined, 'step', 2);
 			expect(o.value).toBe(3);
 		});
+	});
+
+	describe("Performance testing", function () {
+		var benchOpts = {async: true, maxTime: 2},
+			aSingle = a$(SkillShow),
+			aDouble = a$(SkillShow, SkillChange),
+			aQuad = a$(SkillShow, SkillChange, SkillCombined, SkillDemanding),
+			reportFn = function () { 
+				console.log(this.name + 
+					": speed " + benchmark.formatNumber(Math.round(this.hz)) + 
+					"Hz (total of " + this.count + 
+					" executions)"); 
+			};
+
+		benchmark("Single skill a$ allocation", function () { new aSingle("a");})
+			.on("complete", reportFn)
+			.run(benchOpts);
+
+		benchmark("Single skill standard allocation", function () { new SkillShow("a"); })
+			.on("complete", reportFn)
+			.run(benchOpts);
+
+		benchmark("Double skill a$ allocation", function () { new aDouble("a"); })
+			.on("complete", reportFn)
+			.run(benchOpts);
+
+		benchmark("Double skill extend allocation", function () {
+				var a = _.extend({}, SkillShow.prototype, SkillChange.prototype);
+				SkillShow.call(a, "a");
+				SkillChange.call(a, "a");
+			})
+			.on("complete", reportFn)
+			.run(benchOpts);
+
+		benchmark("Quad skill a$ allocation", function () { new aQuad("a"); })
+			.on("complete", reportFn)
+			.run(benchOpts);
+
+		benchmark("Quad skill extend allocation", function () {
+				var a = _.extend({}, SkillShow.prototype, SkillChange.prototype, SkillCombined.prototype, SkillDemanding.prototype);
+				SkillShow.call(a, "a");
+				SkillChange.call(a, "a");
+				SkillChange.call(a, "a");
+				SkillDemanding.call(a, "a");
+			})
+			.on("complete", reportFn)
+			.run(benchOpts);
 	});
 });

@@ -15,7 +15,7 @@ var eachObj = !!_ && typeof _.each === 'function' ? _.each : $.each;
 /** 
  * An actual `extend` worker taken either from lodash or jQuery.
  */
-var mergeObjs = !!_ && typeof _.assignIn === 'function' ? _.assignIn : $.extend;
+var mergeObjs = !!_ && typeof _.extend === 'function' ? _.extend : $.extend;
 
 /**
  * An actual `equal` object comparer working for two - either from undescore or own.
@@ -99,7 +99,7 @@ var fnName = function (fn) {
 	}
 };
 
-/** Create a new type of agents, that is capable of given set of skills.
+/** Create a new type of agent, that is capable of given set of skills.
  * @param {functions|strings} ... A set of skills desired.
  * @description Complexity: o(<required skills> * <avg. number of dependencies>)
  */
@@ -132,7 +132,7 @@ var a$ = function () {
 		if (typeof a !== 'function' || !a.prototype)
 			throw {
 				name: "Missing skill",
-				message: "The skill-set liseted [" + fnName(a) + "] is missing.",
+				message: "The skill-set listed [" + fnName(a) + "] is missing.",
 				skill: s
 			};
 		// We have a valid skill now, to work with!
@@ -233,8 +233,11 @@ a$.title = fnName;
 
 /** Extract the properties which are common for all arguments. All enumerable
  * properties of an object are taken into account - own and prototype-deriven.
- *
- * Complexity: o(<number of object> + <number of properties>).
+ * @param {boolean} equal Optional parameter if only equal properties need to be returned.
+ * @param {object} ... The rest of the arguments are the agents to be compared.
+ * @returns {object} An object which has the properties, which are intersection of
+ * all available properties in the provided agents - own and inherited.
+ * @description Complexity: o(<number of object> + <number of properties>).
  */
 a$.common = function (equal /*objects */ ) {
 	var keyCnt = {},
@@ -308,14 +311,12 @@ a$.clone = function (agent /*, arguments */ ) {
 	// Yes, otherwise we return `undefined` - fair enough
 };
 
-/** Escape a string to be used as a RegExp definition
- */
-a$.escapeRegExp = function (str) {
-	return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-};
-
 /** Performs a specific method from a skill, onto the given agent.
- * Complexity: o(1)
+ * @param {object} agent The agent to act upon.
+ * @param {function|string} activity The name of the method/activity to be invoked.
+ * @param {any} ... The arguments to be passed to the activity.
+ * @return {anu} Whatever the method itself returns.
+ * @description Complexity: o(1)
  */
 a$.act = function (agent, activity /*, arguments */ ) {
 	if (agent == null)
@@ -328,6 +329,12 @@ a$.act = function (agent, activity /*, arguments */ ) {
 };
 
 /** Invokes same activity on all skills of the agent.
+ * @param {object} agent The agent to receive the broadcast invocation.
+ * @param {string} activity The activity/method name to be invoked.
+ * @param {anu} ... The arguments to be used for the invocation.
+ * @returns {object} The agent itself.
+ * @description The @see activity arguments is required to be string, because
+ * the same-named functions within the skills, are still different functions.
  * Complexity: o(1)
  */
 a$.broadcast = function (agent, activity /*, arguments */ ) {
@@ -343,6 +350,11 @@ a$.broadcast = function (agent, activity /*, arguments */ ) {
 /** Call the activity on the first skill containing it _before_
  * the given one, i.e. - the activity which most probably was
  * overriden by the given one.
+ * @param {object} agent The agent to receive the base-skills invocation.
+ * @param {function} skill The reference skill before which to search for capable one.
+ * @param {string} activity The name of the activity to be searched and invoked.
+ * @returns {any} Whatever the method returned.
+ * @description Complexity: o(<number of skills in the agent>)
  */
 a$.pass = function (agent, skill, activity) {
 	var i = agent.__skills && agent.__skills.indexOf(skill),
@@ -356,6 +368,9 @@ a$.pass = function (agent, skill, activity) {
 };
 
 /** Tells whether given agent can perform specific activity.
+ * @param {object} agent The agent to be inspected.
+ * @param {string} activity The name of the activity/method to be checked.
+ * @returns {boolean} Can the agent perform that method
  */
 a$.can = function (agent, activity) {
 	return (typeof agent === 'object') &&
@@ -363,6 +378,9 @@ a$.can = function (agent, activity) {
 };
 
 /** Tells whether tiven agent is aware of given property (activity or value)
+ * @param {object} agent The agent to be inspected.
+ * @param {string} peop The name of the property to be checked.
+ * @returns {boolean} Is the agent aware of that property
  */
 a$.aware = function (agent, prop) {
 	return (typeof agent === 'object') &&
@@ -370,7 +388,11 @@ a$.aware = function (agent, prop) {
 };
 
 /** Tells whether given agent is capable for given set of skills.
- * [1] If this is a normal (single skill) agent - use `instanceOf`.
+ * @param {object} agent The agent to be investigated.
+ * @param {boolean} all Optional boolean telling if all provided skills need to be matches.
+ * @param {function} ... The list of skills/functions to be tested.
+ * @returns {boolean} Is the agent capable of (all) the provided skills
+ * @description [1] If this is a normal (single skill) agent - use `instanceOf`.
  * [2] If this is _our_ agent, the `__skills` property is used.
  * [3] If this is a general object - it's properties are scanned.
  * Complexity: [1] & [2] o(<number of skills>),
@@ -416,7 +438,7 @@ a$.capable = function (agent, all /*, ... skills*/ ) {
  */
 a$.group = function (pool, full, selector) {
 	var res = this.clone(pool),
-		skills = {}, e;
+		skills = {};
 
 	if (typeof full !== 'boolean') {
 		selector = full;
@@ -424,15 +446,15 @@ a$.group = function (pool, full, selector) {
 	}
 
 	for (var k in pool) {
-		var e = pool[k];
-		if (!selector.call(e, e, k, pool))
+		var a = pool[k];
+		if (!selector.call(a, a, k, pool))
 			continue;
 
 		// Get this done, only if we're interested to use it afterwards...
 		if (full)
-			mergeObjs(skills, Object.getPrototypeOf(e));
+			mergeObjs(skills, Object.getPrototypeOf(a));
 
-		res.push(e);
+		res.push(a);
 	}
 
 	if (full) {

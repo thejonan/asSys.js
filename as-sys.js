@@ -4,7 +4,7 @@
 })(this, function(_) {
   "use strict";
   var eachObj = !!_ && typeof _.each === "function" ? _.each : $.each;
-  var mergeObjs = !!_ && typeof _.assignIn === "function" ? _.assignIn : $.extend;
+  var mergeObjs = !!_ && typeof _.extend === "function" ? _.extend : $.extend;
   var equalObjs = !!_ && typeof _.equal === "function" ? _.equal : function(a, b) {
     if (typeof a !== "object" || typeof b !== "object") return a === b; else {
       var testedProps = {};
@@ -55,7 +55,7 @@
       if (skillmap.indexOf(a) > -1) continue;
       if (typeof a !== "function" || !a.prototype) throw {
         name: "Missing skill",
-        message: "The skill-set liseted [" + fnName(a) + "] is missing.",
+        message: "The skill-set listed [" + fnName(a) + "] is missing.",
         skill: s
       };
       if (!!a.prototype.__depends) {
@@ -134,9 +134,6 @@
       return agent.constructor.apply(o, Array.prototype.slice(arguments, 1)) || o;
     } catch (e) {}
   };
-  a$.escapeRegExp = function(str) {
-    return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-  };
   a$.act = function(agent, activity) {
     if (agent == null) return;
     if (typeof activity === "string") activity = agent[activity];
@@ -177,16 +174,16 @@
     return cnt > 0 && (all !== true || arguments.length - firstIdx == cnt);
   };
   a$.group = function(pool, full, selector) {
-    var res = this.clone(pool), skills = {}, e;
+    var res = this.clone(pool), skills = {};
     if (typeof full !== "boolean") {
       selector = full;
       full = false;
     }
     for (var k in pool) {
-      var e = pool[k];
-      if (!selector.call(e, e, k, pool)) continue;
-      if (full) mergeObjs(skills, Object.getPrototypeOf(e));
-      res.push(e);
+      var a = pool[k];
+      if (!selector.call(a, a, k, pool)) continue;
+      if (full) mergeObjs(skills, Object.getPrototypeOf(a));
+      res.push(a);
     }
     if (full) {
       var sks = Object.keys(skills), p, props = {};
