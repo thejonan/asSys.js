@@ -285,9 +285,13 @@ _Language changes..._ I think that this type of functionality will perfectly fit
 
 And, such change will feel much more natural to JavaScript, than the continuous attempts to bring the `class`-ical, inheritance-based OOP paradigm in it.
 
+## Credits
+
+Project image from [icon8](https://icons8.com/icons/set/agent).
+
 ## Legal notice (MIT License)
 
-**Copyright © 2016-2018, Ivan (Jonan) Georgiev**
+**Copyright © 2016-2019, Ivan (Jonan) Georgiev**
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
