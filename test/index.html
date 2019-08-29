@@ -13,16 +13,16 @@
 <script type="text/javascript" src="libs/jasmine.js"></script>
 <script type="text/javascript" src="libs/jasmine-html.js"></script>
 <script type="text/javascript" src="libs/boot.js"></script>
-<script type="text/javascript" src="libs/underscore-min.js"></script>
+<script type="text/javascript" src="libs/lodash.js"></script>
+<script type="text/javascript" src="libs/benchmark.js"></script>
 
 <script type="text/javascript" src="../as-sys.js"></script>
 <script type="text/javascript">
   var global = window;
   function require(a) { 
-    if (a == "underscore" || a == "_")
-      return _;
-    else
-      return asSys;
+    if (a == "lodash" || a == "_") return _;
+    else if (a == "benchmark") return Benchmark;
+    else return asSys;
   }
 </script>
 <script type="text/javascript" src="asSysSpec.js"></script>

@@ -1,27 +1,28 @@
 {
   "name": "as-sys",
-  "version": "0.13.3",
-  "description": "An Agent-Skills (i.e. Entity-Attribute) System JavaScript library.",
+  "version": "1.0.0",
+  "description": "An Agent-Skills (i.e. Entity-Component) System JavaScript library.",
   "keywords": [
     "agent",
     "skills",
     "entity",
+    "component",
     "attributes",
     "characteristics",
     "prototyping"
   ],
   "homepage": "http://jonan.info/asSys.js/",
   "license": "MIT",
-  "author": [
-    {
-      "name": "Ivan (Jonan) Georgiev",
-      "homepage": "http://jonan.info/"
-    }
-  ],
+  "author": {
+    "name": "Ivan (Jonan) Georgiev",
+    "homepage": "https://jonan.info/",
+    "email": "ivan@jonan.info"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/theJonan/asSys.js.git"
   },
+  "module": "src/asSys.js",
   "main": "as-sys.js",
   "jspm": {
     "main": "as-sys.js",
@@ -40,16 +41,21 @@
   "spm": {
     "main": "as-sys.js"
   },
+  "dependencies": {
+    "lodash": "^4.17.15"
+  },
   "devDependencies": {
-    "uglify-js": "latest",
-    "jasmine-node": "latest",
-    "jasmine-core": "latest"
+    "benchmark": "^2.1.4",
+    "jasmine-core": "^3.4.0",
+    "jasmine-node": "^3.0.0",
+    "rollup": "^1.20.2",
+    "uglify-js": "^3.6.0"
   },
   "scripts": {
-    "pretest": "rm -f as-sys.js as-sys.min.js as-sys.js.zip && export VERSION=`node -e 'console.log(require(\"./package.json\").version)'` && sed -E -e \"s/\\{\\{VERSION\\}\\}/$VERSION/\" src/asSys.js | uglifyjs -b indent_level=2 -o as-sys.js && rsync node_modules/jasmine-core/lib/jasmine-core/*.js test/libs && rsync node_modules/jasmine-core/lib/jasmine-core/*.css test/libs && rsync node_modules/underscore/*.js test/libs",
+    "build": "rm -f as-sys*.js && rollup -c && export VERSION=`node -e 'console.log(require(\"./package.json\").version)'` && sed -E -e \"s/\\{\\{VERSION\\}\\}/$VERSION/\" as-sys.js | uglifyjs -b indent_level=2 -o as-sys.temp.js && mv -f as-sys.temp.js as-sys.js",
+    "pretest": "npm run build && rsync node_modules/jasmine-core/lib/jasmine-core/*.js test/libs && rsync node_modules/jasmine-core/lib/jasmine-core/*.css test/libs && rsync node_modules/lodash/lodash.js test/libs && rsync node_modules/benchmark/benchmark.js test/libs",
     "test": "jasmine-node test && uglifyjs as-sys.js -mc --ie8 --keep-fnames -o as-sys.min.js",
-
-    "prepublish": "npm test && chmod a-w as-sys.js as-sys.min.js && zip as-sys.js.zip LICENSE as-sys.js as-sys.min.js",
+    "prepublish": "npm test && uglifyjs as-sys.js -mc --ie8 --keep-fnames -o as-sys.min.js && chmod a-w as-sys.js as-sys.min.js && zip as-sys.js.zip LICENSE as-sys.js as-sys.min.js",
     "postpublish": "VERSION=`node -e 'console.log(require(\"./package.json\").version)'`; git push && git tag -am \"Release $VERSION.\" ${VERSION} && git push --tags"
   }
 }
