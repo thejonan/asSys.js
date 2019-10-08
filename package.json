@@ -1,6 +1,6 @@
 {
   "name": "as-sys",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An Agent-Skills (i.e. Entity-Component) System JavaScript library.",
   "keywords": [
     "agent",
