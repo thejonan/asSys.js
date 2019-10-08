@@ -231,6 +231,27 @@ a$.similar = function ( /*,objects */ ) {
  */
 a$.title = fnName;
 
+
+/**
+ * Overwrites the existing properties of the agent with the same ones from the `sources`.
+ * @param {object} agent The destination agent which receives the new settings
+ * @returns {object} The passed agent.
+ * @description This one ignores all properties from the `sources` that are not present
+ * int the destination `agent`. It takes into account both own and inherited enumerable props.
+ */
+a$.setup = function (agent /* sources */) {
+	for (var p in agent) {
+		for (var i = 1; i < arguments.length; ++i) {
+			var src = arguments[i];
+			if (src[p] !== undefined)
+				agent[p] = src[p];
+		}
+	}
+
+	return agent;
+}
+
+
 /** Extract the properties which are common for all arguments. All enumerable
  * properties of an object are taken into account - own and prototype-deriven.
  * @param {boolean} equal Optional parameter if only equal properties need to be returned.

@@ -101,7 +101,7 @@
     });
     return A;
   };
-  a$.VERSION = "1.0.0";
+  a$.VERSION = "1.0.1";
   a$.equal = function() {
     return multiScan(arguments, equalObjs);
   };
@@ -109,6 +109,15 @@
     return multiScan(arguments, similarObjs);
   };
   a$.title = fnName;
+  a$.setup = function(agent) {
+    for (var p in agent) {
+      for (var i = 1; i < arguments.length; ++i) {
+        var src = arguments[i];
+        if (src[p] !== undefined) agent[p] = src[p];
+      }
+    }
+    return agent;
+  };
   a$.common = function(equal) {
     var keyCnt = {}, keyVal = {}, res = {}, ia = 0, argsCnt = arguments.length;
     if (typeof equal === "boolean") ia = 1;

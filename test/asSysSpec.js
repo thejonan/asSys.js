@@ -102,8 +102,12 @@ describe("asSys", function () {
 
 	describe("Working with (deep) properties", function () {
 
+		it ("Setups properly", function () {
+			expect(a$.setup({ a: 1, b: 2}, {b: 3, c: 5 })).toEqual({ a: 1, b: 3 });
+		});
+
 		it("Getting common properties", function() {
-			expect(a$.common({ a: 1, b: 2, c: 3},  { b: 2, c: 4, d: 5})).toEqual({ b: 2, c: 3 });
+			expect(a$.common({ a: 1, b: 2, c: 3},  { b: 2, c: 4, d: 5 })).toEqual({ b: 2, c: 3 });
 		});
 
 		it("Getting equal common properties", function() {
