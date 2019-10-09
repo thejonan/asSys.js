@@ -243,7 +243,7 @@ a$.setup = function (agent /* sources */) {
 	for (var p in agent) {
 		for (var i = 1; i < arguments.length; ++i) {
 			var src = arguments[i];
-			if (src[p] !== undefined)
+			if (!!src && src[p] !== undefined)
 				agent[p] = src[p];
 		}
 	}

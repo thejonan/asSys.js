@@ -106,6 +106,10 @@ describe("asSys", function () {
 			expect(a$.setup({ a: 1, b: 2}, {b: 3, c: 5 })).toEqual({ a: 1, b: 3 });
 		});
 
+		it ("Endures setup with undefined", function () {
+			expect(a$.setup({ a: 1, b: 2}, undefined)).toEqual({ a: 1, b: 2 });
+		});
+
 		it("Getting common properties", function() {
 			expect(a$.common({ a: 1, b: 2, c: 3},  { b: 2, c: 4, d: 5 })).toEqual({ b: 2, c: 3 });
 		});
