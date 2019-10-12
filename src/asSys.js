@@ -246,10 +246,10 @@ a$.setup = function (agent /* sources */) {
 			var src = arguments[i];
 			if (!src || src[p] === undefined)
 				continue;
-			else if ((typeof agent[p] === 'object' || agent[p] === null) && typeof src[p] === 'object' ) // deep case
-				this.setup(agent[p], src[p]);
-			else
-				agent[p] = src[p];
+
+			agent[p] = ((typeof agent[p] === 'object' || agent[p] === null) && typeof src[p] === 'object' ) 
+				? this.setup(agent[p] || {}, src[p]) // deep case
+				: src[p];
 		}
 	}
 
