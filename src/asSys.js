@@ -237,13 +237,18 @@ a$.title = fnName;
  * @param {object} agent The destination agent which receives the new settings
  * @returns {object} The passed agent.
  * @description This one ignores all properties from the `sources` that are not present
- * int the destination `agent`. It takes into account both own and inherited enumerable props.
+ * in the destination `agent`. It makes a deep copy, and takes into account both own 
+ * and inherited enumerable props.
  */
 a$.setup = function (agent /* sources */) {
 	for (var p in agent) {
 		for (var i = 1; i < arguments.length; ++i) {
 			var src = arguments[i];
-			if (!!src && src[p] !== undefined)
+			if (!src || src[p] === undefined)
+				continue;
+			else if ((typeof agent[p] === 'object' || agent[p] === null) && typeof src[p] === 'object' ) // deep case
+				this.setup(agent[p], src[p]);
+			else
 				agent[p] = src[p];
 		}
 	}
