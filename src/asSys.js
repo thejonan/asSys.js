@@ -247,9 +247,11 @@ a$.setup = function (agent /* sources */) {
 			if (!src || src[p] === undefined)
 				continue;
 
-			agent[p] = ((typeof agent[p] === 'object' || agent[p] === null) && typeof src[p] === 'object' ) 
-				? this.setup(agent[p] || {}, src[p]) // deep case
-				: src[p];
+			agent[p] = typeof src[p] !== 'object' 
+				? agent[p] = src[p] 
+				: typeof agent[p] !== 'object' 
+					? _.merge({}, src[p])
+					: this.setup(agent[p], src[p]);
 		}
 	}
 
