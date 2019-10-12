@@ -110,6 +110,14 @@ describe("asSys", function () {
 			expect(a$.setup({ a: 1, b: 2}, undefined)).toEqual({ a: 1, b: 2 });
 		});
 
+		it ("Makes a deep copy during setup", function () {
+			var src = { inner: { b: 3, c: 5 } },
+				target = a$.setup({ a: 1, inner: { b: 2 } }, src);
+
+			src.inner.b = 4;
+			expect(target).toEqual({ a: 1, inner: { b: 3 } });
+		});
+
 		it("Getting common properties", function() {
 			expect(a$.common({ a: 1, b: 2, c: 3},  { b: 2, c: 4, d: 5 })).toEqual({ b: 2, c: 3 });
 		});

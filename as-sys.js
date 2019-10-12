@@ -101,7 +101,7 @@
     });
     return A;
   };
-  a$.VERSION = "1.0.2";
+  a$.VERSION = "1.0.3";
   a$.equal = function() {
     return multiScan(arguments, equalObjs);
   };
@@ -113,7 +113,7 @@
     for (var p in agent) {
       for (var i = 1; i < arguments.length; ++i) {
         var src = arguments[i];
-        if (!!src && src[p] !== undefined) agent[p] = src[p];
+        if (!src || src[p] === undefined) continue; else if ((typeof agent[p] === "object" || agent[p] === null) && typeof src[p] === "object") this.setup(agent[p], src[p]); else agent[p] = src[p];
       }
     }
     return agent;
