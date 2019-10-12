@@ -101,21 +101,23 @@ describe("asSys", function () {
 	});
 
 	describe("Working with (deep) properties", function () {
+		var simple = { a: 1, b: 2, c: 3},
+			deeper = { a: 1, inner: { b: 3, c: 4 } };
 
 		it ("Setups properly", function () {
-			expect(a$.setup({ a: 1, b: 2}, {b: 3, c: 5 })).toEqual({ a: 1, b: 3 });
+			expect(a$.setup({}, simple, {b: 3, d: 5 })).toEqual({ a: 1, b: 3, c: 3 });
 		});
 
 		it ("Endures setup with undefined", function () {
-			expect(a$.setup({ a: 1, b: 2}, undefined)).toEqual({ a: 1, b: 2 });
+			expect(a$.setup({}, simple, undefined)).toEqual({ a: 1, b: 2, c: 3 });
 		});
 
 		it ("Makes a deep copy during setup", function () {
 			var src = { inner: { b: 3, c: 5 } },
-				target = a$.setup({ a: 1, inner: { b: 2 } }, src);
+				target = a$.setup({}, deeper, src);
 
 			src.inner.b = 4;
-			expect(target).toEqual({ a: 1, inner: { b: 3 } });
+			expect(target).toEqual({ a: 1, inner: { b: 3, c: 5 } });
 		});
 
 		it("Getting common properties", function() {

@@ -5,43 +5,7 @@
  * asSys may be freely distributed under the MIT license.
  */
 
-import _ from "lodash/core";
-
-/** 
- * An actual `each` worker taken from either lodash (preferrably) or jQuery
- */
-var eachObj = !!_ && typeof _.each === 'function' ? _.each : $.each;
-
-/** 
- * An actual `extend` worker taken either from lodash or jQuery.
- */
-var mergeObjs = !!_ && typeof _.extend === 'function' ? _.extend : $.extend;
-
-/**
- * An actual `equal` object comparer working for two - either from undescore or own.
- */
-var equalObjs = !!_ && typeof _.equal === 'function' ? _.equal : function (a, b) {
-	if (typeof a !== 'object' || typeof b !== 'object')
-		return a === b;
-	else {
-		var testedProps = {};
-		for (var p in a) {
-			if (!a.hasOwnProperty(p))
-				continue;
-			if (!b.hasOwnProperty(p) || !equalObjs(a[p], b[p]))
-				return false;
-			testedProps[p] = true;
-		}
-		for (var p in b) {
-			if (testedProps[p] || !b.hasOwnProperty(p))
-				continue;
-			if (!a.hasOwnProperty(p) || !equalObjs(a[p], b[p]))
-				return false;
-		}
-	}
-
-	return true;
-};
+import _ from "lodash";
 
 /**
  * An internal function checking if two objects are similar, taking into account RegEx's
@@ -167,7 +131,7 @@ var a$ = function () {
 		skillmap.push(a);
 		A.prototype = (A.prototype === undefined) ?
 			Object.create(a.prototype) :
-			mergeObjs(A.prototype, a.prototype);
+			_.extend(A.prototype, a.prototype);
 
 		// When the added skill is already built this way, its `prototype` does
 		// contain the functions from the building sub-skills.
@@ -182,7 +146,7 @@ var a$ = function () {
 
 	// Now check whether the prototype just built has all the expected methods
 	if (!!expected) {
-		eachObj(expected, function (v, m) {
+		_.each(expected, function (v, m) {
 			if (!A.prototype[m])
 				throw {
 					name: "Unmatched expectation",
@@ -212,7 +176,7 @@ a$.VERSION = "{{VERSION}}";
  * @description Complexity: o(<number of object> * <number of properties>).
  */
 a$.equal = function ( /* objects */ ) {
-	return multiScan(arguments, equalObjs);
+	return multiScan(arguments, _.isEqual);
 };
 
 /** 
@@ -233,28 +197,18 @@ a$.title = fnName;
 
 
 /**
- * Overwrites the existing properties of the agent with the same ones from the `sources`.
+ * Setups the agent, overwriting it's prototype defined defaults with properties from
+ * provided `sources`.
  * @param {object} agent The destination agent which receives the new settings
+ * @param {object} defaults An object which defines relevant props and their default values.
  * @returns {object} The passed agent.
  * @description This one ignores all properties from the `sources` that are not present
- * in the destination `agent`. It makes a deep copy, and takes into account both own 
- * and inherited enumerable props.
+ * in the `agent`'s prototype. For present ones -  it makes a deep copy, and takes into 
+ * account both own and inherited enumerable props.
  */
-a$.setup = function (agent /* sources */) {
-	for (var p in agent) {
-		for (var i = 1; i < arguments.length; ++i) {
-			var src = arguments[i];
-			if (!src || src[p] === undefined)
-				continue;
-
-			agent[p] = typeof src[p] !== 'object' 
-				? agent[p] = src[p] 
-				: typeof agent[p] !== 'object' 
-					? _.merge({}, src[p])
-					: this.setup(agent[p], src[p]);
-		}
-	}
-
+a$.setup = function (agent, defaults /* sources */) {
+	for (var i = 1, defKeys = _.keys(defaults); i < arguments.length; ++i)
+		_.merge(agent, _.pick(arguments[i], defKeys));
 	return agent;
 }
 
@@ -368,7 +322,7 @@ a$.act = function (agent, activity /*, arguments */ ) {
 a$.broadcast = function (agent, activity /*, arguments */ ) {
 	var args = Array.prototype.slice.call(arguments, 2);
 
-	eachObj(agent.__skills, function (s) {
+	_.each(agent.__skills, function (s) {
 		if (typeof s.prototype[activity] === 'function')
 			s.prototype[activity].apply(agent, args);
 	});
@@ -480,7 +434,7 @@ a$.group = function (pool, full, selector) {
 
 		// Get this done, only if we're interested to use it afterwards...
 		if (full)
-			mergeObjs(skills, Object.getPrototypeOf(a));
+			_.merge(skills, Object.getPrototypeOf(a));
 
 		res.push(a);
 	}

@@ -7,7 +7,7 @@ export default {
 		format: 'umd',
 		interop: false,
 		name: "asSys",
-		globals: { "lodash/core" : "_" }
+		globals: { "lodash" : "_" }
 	},
-	external: [ "lodash/core" ]
+	external: [ "lodash" ]
 }
