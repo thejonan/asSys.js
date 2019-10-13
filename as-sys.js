@@ -195,5 +195,6 @@
     }
     return res;
   };
+  (typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})["a$"] = a$;
   return a$;
 });

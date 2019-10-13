@@ -472,4 +472,10 @@ a$.group = function (pool, full, selector) {
 	return res;
 };
 
+// Finally make some module-name maintanence steps.
+
+(	typeof global !== "undefined" ? global :
+	typeof self !== "undefined" ? self :
+	typeof window !== "undefined" ? window : {})['a$'] = a$;
+
 export default a$;
