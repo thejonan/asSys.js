@@ -56,11 +56,8 @@ describe("asSys", function () {
   		}
   		catch (o) {
     		failed = true;
-    		expect(o.name).toBe("Missing skill");
-    		expect(o.message).toBeDefined();
-    		expect(o.skill).toBeUndefined();
+    		expect(o).toBe("The skill listed [NonExistentSkill] is not provided.");
   		}
-  		
 			expect(failed).toBeTruthy();
 		});		
 
@@ -70,7 +67,7 @@ describe("asSys", function () {
 			  expect(true).toBeFalsy();
 		  }
 		  catch (e) {
-  		  expect(e.method).toBe("show");
+  		  	expect(e).toBe("The expected method [show] was not found among provided skills.");
 		  }
 		});
 
