@@ -46,23 +46,6 @@ var multiScan = function (arr, callback) {
 	return true;
 };
 
-/**
- * An internal function for obtaining the function (or other object) name, even in IE.
- * @param {function|any} fn The function which name needs obtaining.
- */
-var fnName = function (fn) {
-	if (!fn)
-		return undefined;
-	if (typeof fn !== 'function')
-		return fn.toString();
-	else if (fn.name !== undefined)
-		return fn.name;
-	else {
-		var s = fn.toString().match(/function ([^\(]+)/);
-		return s != null ? s[1] : "";
-	}
-};
-
 /** Create a new type of agent, that is capable of given set of skills.
  * @param {functions|strings} ... A set of skills desired.
  * @description Complexity: o(<required skills> * <avg. number of dependencies>)
@@ -94,11 +77,7 @@ var a$ = function () {
 		if (skillmap.indexOf(a) > -1)
 			continue;
 		if (typeof a !== 'function' || !a.prototype)
-			throw {
-				name: "Missing skill",
-				message: "The skill-set listed [" + fnName(a) + "] is missing.",
-				skill: s
-			};
+			throw "The skill listed [" + a + "] is not provided.";
 		// We have a valid skill now, to work with!
 		// If it has dependencies
 		if (!!a.prototype.__depends) {
@@ -148,11 +127,7 @@ var a$ = function () {
 	if (!!expected) {
 		_.each(expected, function (v, m) {
 			if (!A.prototype[m])
-				throw {
-					name: "Unmatched expectation",
-					message: "The expected method [" + m + "] was not found among provided skills.",
-					method: m
-				};
+				throw "The expected method [" + m + "] was not found among provided skills.";
 		});
 	}
 
@@ -187,14 +162,6 @@ a$.equal = function ( /* objects */ ) {
 a$.similar = function ( /*,objects */ ) {
 	return multiScan(arguments, similarObjs);
 };
-
-/**
- * Gets the title of the method, working safely even for IE. Works on non-functions as well.
- * @param {function|any} fn The function/object to get the name of.
- * @returns {string} The ontained name.
- */
-a$.title = fnName;
-
 
 /**
  * Setups the agent, overwriting it's prototype defined defaults with properties from
