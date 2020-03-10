@@ -1,5 +1,5 @@
 {
-  "name": "as-sys",
+  "name": "@thejonan/as-sys",
   "version": "1.0.4",
   "description": "An Agent-Skills (i.e. Entity-Component) System JavaScript library.",
   "keywords": [
@@ -48,8 +48,8 @@
     "benchmark": "^2.1.4",
     "jasmine-core": "^3.5.0",
     "jasmine-node": "^3.0.0",
-    "rollup": "^1.23.1",
-    "uglify-js": "^3.6.1"
+    "rollup": "^1.32.1",
+    "uglify-js": "^3.8.0"
   },
   "scripts": {
     "build": "rm -f as-sys*.js && rollup -c && export VERSION=`node -e 'console.log(require(\"./package.json\").version)'` && sed -E -e \"s/\\{\\{VERSION\\}\\}/$VERSION/\" as-sys.js | uglifyjs -b indent_level=2 -o as-sys.temp.js && mv -f as-sys.temp.js as-sys.js",
